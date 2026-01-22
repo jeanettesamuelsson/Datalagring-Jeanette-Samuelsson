@@ -32,6 +32,10 @@ function Header() {
           <NavLink to="/participants" className="nav-item">
             <Users size={18} /> Deltagare
           </NavLink>
+
+          <NavLink to="/teachers" className="nav-item">
+            <Users size={18} /> Lärare
+          </NavLink>
         </nav>
 
       </div>

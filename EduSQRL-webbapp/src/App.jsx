@@ -6,9 +6,8 @@ import Courses from './pages/Courses';
 import Instances from './pages/Instances';
 import Participants from './pages/Participants';
 import Homepage from './pages/Homepage';
-
-import { Squirrel, ArrowRight, GraduationCap, Book, Calendar, Users, Home } from 'lucide-react';
 import Header from './components/Header';
+import Teachers from './pages/Teachers';
 
 function App() {
   
@@ -36,6 +35,7 @@ function App() {
             <Route path="/courses" element={<Courses />} />
             <Route path="/instances" element={<Instances/>} />
             <Route path="/participants" element={<Participants />} />
+            <Route path="/teachers" element={<Teachers />} />
           </Routes>
         </main>
 

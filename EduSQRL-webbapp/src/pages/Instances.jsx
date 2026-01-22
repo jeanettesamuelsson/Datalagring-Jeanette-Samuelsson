@@ -2,7 +2,10 @@ import React from 'react'
 
 const Instances = () => {
   return (
-    <div>Instances</div>
+    <div>
+      <h3> Kommande kurstillfällen:
+        </h3>
+        </div>
   )
 }
 
