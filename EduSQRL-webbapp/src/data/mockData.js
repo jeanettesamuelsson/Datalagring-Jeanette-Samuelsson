@@ -2,8 +2,8 @@
 
 export const mockData = {
   participants: [
-    { email: 'nettes@edu.se', firstName: 'Nette', lastName: 'Samuelsson', phoneNumber: '0701112233', cityName: 'Uddevalla' },
-    { email: 'egon@sqrl.se', firstName: 'Egon', lastName: 'Ekorre', phoneNumber: '070998877', cityName: 'Skogen' }
+    { email: 'nettes@edu.se', firstName: 'Nette', lastName: 'Samuelsson', phoneNumber: '0701112233' },
+    { email: 'egon@sqrl.se', firstName: 'Egon', lastName: 'Ekorre', phoneNumber: '070998877' }
   ],
   
   courses: [

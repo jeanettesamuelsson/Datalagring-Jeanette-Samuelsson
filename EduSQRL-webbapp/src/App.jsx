@@ -8,10 +8,12 @@ import Participants from './pages/Participants';
 import Homepage from './pages/Homepage';
 import Header from './components/Header';
 import Teachers from './pages/Teachers';
+import Registrations from './pages/Registrations';
+import CircularNav from './components/CircularNav';
 
 function App() {
   
-  // En hjälpfunktion för att slippa skriva samma Tailwind-klasser om och om igen
+  
   const navLinkClasses = ({ isActive }) => 
     `flex items-center gap-3 p-3 rounded-lg transition-all ${
       isActive 
@@ -22,20 +24,25 @@ function App() {
   return (
     <>
      <BrowserRouter>
-      <div >
-        <nav>
-          <Header/ >
+     <div className="app-grid-container">
+      
+        <header className="site-header">
+          <Header />
+        </header>
+        
+        <nav className="navigation-section">
+          <CircularNav />
         </nav>
         
-      
-        {/* --- CONTENT --- */}
-        <main>
+
+        <main className="content-section">
           <Routes>
             <Route path="/" element={<Homepage />} />
             <Route path="/courses" element={<Courses />} />
             <Route path="/instances" element={<Instances/>} />
             <Route path="/participants" element={<Participants />} />
             <Route path="/teachers" element={<Teachers />} />
+            <Route path="/teachers" element={<Registrations />} />
           </Routes>
         </main>
 
