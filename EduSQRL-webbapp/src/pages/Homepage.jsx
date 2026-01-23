@@ -38,7 +38,7 @@ const Homepage = () => {
                 </div>
                 
                  {/* Link to registration */}
-                <Link to="/registration" style={{ color: '#ea580c' }}>
+                <Link to="/registrations" style={{ color: '#ea580c' }}>
                   <ArrowRight size={15} />
                 </Link>
               </li>

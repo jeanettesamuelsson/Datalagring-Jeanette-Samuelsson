@@ -42,7 +42,7 @@ function App() {
             <Route path="/instances" element={<Instances/>} />
             <Route path="/participants" element={<Participants />} />
             <Route path="/teachers" element={<Teachers />} />
-            <Route path="/teachers" element={<Registrations />} />
+            <Route path="/registrations" element={<Registrations />} />
           </Routes>
         </main>
 
