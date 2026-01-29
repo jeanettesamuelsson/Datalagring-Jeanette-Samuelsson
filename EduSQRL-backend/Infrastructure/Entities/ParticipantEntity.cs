@@ -11,6 +11,7 @@ public class ParticipantEntity
     public byte[] Concurrency { get; set; } = null!;
     public DateTime Created { get; set; }
     public DateTime Modified { get; set; }
+    public ICollection<RoleEntity> Roles { get; set; } = [];
 
 
 
