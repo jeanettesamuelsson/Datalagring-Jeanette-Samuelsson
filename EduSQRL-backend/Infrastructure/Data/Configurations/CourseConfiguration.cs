@@ -52,5 +52,9 @@ public class CourseConfiguration : IEntityTypeConfiguration<CourseEntity>
 
         //Add relation to course_session
 
+        entity.HasMany(c => c.CourseSessions)
+           .WithOne(s => s.Course)
+           .HasForeignKey(s => s.CourseId);
+
     }
 }

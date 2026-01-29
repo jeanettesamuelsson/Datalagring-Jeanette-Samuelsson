@@ -10,6 +10,8 @@ public sealed class EduSqrlDbContext(DbContextOptions<EduSqrlDbContext> options)
     //dbSet
     public DbSet<ParticipantEntity> Participants => Set<ParticipantEntity>();
     public DbSet<RoleEntity> Roles => Set<RoleEntity>();
+    public DbSet<CourseEntity> Courses => Set<CourseEntity>();
+    public DbSet<CourseSessionEntity> CourseSessions => Set<CourseSessionEntity>();
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
