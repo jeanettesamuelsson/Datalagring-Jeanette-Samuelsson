@@ -6,29 +6,29 @@ namespace Infrastructure.Data.Configurations;
 
 public class RoleConfiguration : IEntityTypeConfiguration<RoleEntity>
 {
-    public void Configure(EntityTypeBuilder<RoleEntity> entity)
+    public void Configure(EntityTypeBuilder<RoleEntity> builder)
     {
-        entity.ToTable("Roles");
+        builder.ToTable("Roles");
 
-        entity.HasKey(e => e.Id).HasName("PK_Roles_Id");
-        entity.Property(e => e.RoleName)
+        builder.HasKey(e => e.Id).HasName("PK_Roles_Id");
+        builder.Property(e => e.RoleName)
                 .IsRequired()
                 .HasMaxLength(20);
 
-        entity.HasIndex(e => e.RoleName, "UQ_Roles_RoleName").IsUnique();
+        builder.HasIndex(e => e.RoleName, "UQ_Roles_RoleName").IsUnique();
 
-        entity.Property(e => e.Concurrency)
+        builder.Property(e => e.Concurrency)
        .IsRowVersion()
        .IsConcurrencyToken()
        .IsRequired();
 
-        entity.Property(e => e.Created)
+        builder.Property(e => e.Created)
         .HasPrecision(0)
         .IsRequired()
         .HasDefaultValueSql("(SYSUTCDATETIME())", "DF_Role_Created")
         .ValueGeneratedOnAdd();
 
-        entity.Property(e => e.Modified)
+        builder.Property(e => e.Modified)
         .HasPrecision(0)
         .IsRequired()
         .HasDefaultValueSql("(SYSUTCDATETIME())", "DF_Role_Modified")
@@ -36,7 +36,7 @@ public class RoleConfiguration : IEntityTypeConfiguration<RoleEntity>
 
         //set M-M relation between Participant and Roles
 
-        entity.HasMany(r => r.Participants)
+        builder.HasMany(r => r.Participants)
         .WithMany(p => p.Roles)
         .UsingEntity<Dictionary<string, object>>(
         "ParticipantRole",

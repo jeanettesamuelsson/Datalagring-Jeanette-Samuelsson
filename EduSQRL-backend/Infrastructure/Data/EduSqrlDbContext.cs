@@ -16,11 +16,7 @@ public sealed class EduSqrlDbContext(DbContextOptions<EduSqrlDbContext> options)
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(EduSqrlDbContext).Assembly);
-
-       
     }
-
 }
 

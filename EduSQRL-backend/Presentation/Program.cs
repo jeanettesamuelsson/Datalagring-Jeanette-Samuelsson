@@ -7,7 +7,7 @@ builder.Services.AddOpenApi();
 
 builder.Services.AddDbContext<EduSqrlDbContext>(options => options.UseSqlServer(
     builder.Configuration.GetConnectionString("EduSqrlDatabase"),
-    sql => sql.MigrationsAssembly("Infrastructure")
+    sql => sql.MigrationsAssembly(typeof(EduSqrlDbContext).Assembly.FullName)
 ));
 
 var app = builder.Build();
