@@ -1,6 +1,4 @@
-﻿
-
-namespace Infrastructure.Entities;
+﻿namespace Infrastructure.Persistence.Entities;
 
 internal class RegistrationEntity
 {

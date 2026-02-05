@@ -1,8 +1,6 @@
-﻿
+﻿using System.ComponentModel.DataAnnotations;
 
-using System.ComponentModel.DataAnnotations;
-
-namespace Infrastructure.Entities;
+namespace Infrastructure.Persistence.Entities;
 
 public class RoleEntity
 {

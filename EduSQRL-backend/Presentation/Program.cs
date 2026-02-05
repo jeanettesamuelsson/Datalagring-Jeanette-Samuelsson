@@ -1,9 +1,9 @@
-using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Presentation.Dtos;
 using Microsoft.AspNetCore.Mvc;
 using Application.Modules.Participants;
 using Application.Modules.Participants.Inputs;
+using Infrastructure.Persistence.Migrations.Data;
 
 
 var builder = WebApplication.CreateBuilder(args);

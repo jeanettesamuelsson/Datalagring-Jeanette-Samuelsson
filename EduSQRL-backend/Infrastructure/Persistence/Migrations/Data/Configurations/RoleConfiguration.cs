@@ -1,8 +1,8 @@
-﻿using Infrastructure.Entities;
+﻿using Infrastructure.Persistence.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Infrastructure.Data.Configurations;
+namespace Infrastructure.Persistence.Migrations.Data.Configurations;
 
 public class RoleConfiguration : IEntityTypeConfiguration<RoleEntity>
 {
