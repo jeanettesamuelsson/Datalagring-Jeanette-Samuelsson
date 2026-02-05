@@ -5,25 +5,36 @@ using Application.Modules.Participants.Outputs;
 
 namespace Application.Modules.Participants;
 
-public class ParticipantService
+public class ParticipantService : IParticipantService
 {
 
     private static List<ParticipantOutput> _participants = [];
 
-    public ParticipantOutput Create(CreateParticipantInput input)
+   
+    // create 
+    public async Task<ParticipantOutput> CreateAsync(CreateParticipantInput input, CancellationToken cancellationToken)
     {
         var participant = new ParticipantOutput(Guid.NewGuid(), input.FirstName, input.LastName, input.Email);
         _participants.Add(participant);
 
-        return participant;
+        return await Task.FromResult(participant);
     }
 
-    public IEnumerable<ParticipantOutput> GetAllParticipants()
+    // read (all and by id)
+    public async Task<IEnumerable<ParticipantOutput>> GetAllParticipantsAsync(CancellationToken cancellationToken)
     {
-        return _participants;
+        return await Task.FromResult(_participants);
     }
 
-    public ParticipantOutput? Update(UpdateParticipantInput input)
+    public async Task<ParticipantOutput?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
+    {
+        var participant = _participants.FirstOrDefault(p => p.Id == id);
+        return await Task.FromResult(participant);
+    }
+
+
+    //update
+    public async Task<ParticipantOutput?> UpdateAsync(UpdateParticipantInput input, CancellationToken cancellationToken)
     {
         var index = _participants.FindIndex(p => p.Id == input.Id);
         if (index == -1)
@@ -41,19 +52,22 @@ public class ParticipantService
 
         _participants[index] = updatedParticipant;
 
-        return updatedParticipant;
+        return await Task.FromResult(updatedParticipant);
     }
 
-    public void Delete (Guid id)
+    //delete
+    public async Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken)
     {
-       var index = _participants.FindIndex(p => p.Id == id);
-       if (index == -1)
-       {
-            return;
-       }
+        var index = _participants.FindIndex(p => p.Id == id);
+        if (index == -1)
+        {
+            return false;
+        }
 
         _participants.RemoveAt(index);
+
+        return await Task.FromResult(true);
     }
-
-
 }
+
+
