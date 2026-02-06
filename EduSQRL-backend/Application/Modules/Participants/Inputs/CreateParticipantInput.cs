@@ -8,6 +8,7 @@ public record CreateParticipantInput
 (
     string FirstName,
     string LastName,
-    string Email
+    string Email,
+    string PhoneNumber
    
 );

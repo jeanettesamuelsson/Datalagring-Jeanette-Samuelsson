@@ -1,73 +1,109 @@
 ﻿
 
+using Application.Abstractions.Persistence;
 using Application.Modules.Participants.Inputs;
 using Application.Modules.Participants.Outputs;
+using Application.Modules.Participants.PersistanceModels;
+using Domain.Participants.ValueObjects;
+using System.Reflection.Metadata;
 
 namespace Application.Modules.Participants;
 
-public class ParticipantService : IParticipantService
+public class ParticipantService
+    (
+    IParticipantRepository participants,
+    IUnitOfWork uow
+
+    ): IParticipantService
 {
+    private static ParticipantOutput ToOutputModel(Participant p) => new(
+        p.Id,
+        p.Email,
+        p.Created,
+        p.RowVersion
 
-    private static List<ParticipantOutput> _participants = [];
+        );
 
-   
     // create 
-    public async Task<ParticipantOutput> CreateAsync(CreateParticipantInput input, CancellationToken cancellationToken)
+    public async Task<Guid> CreateAsync(CreateParticipantInput input, CancellationToken ct)
     {
-        var participant = new ParticipantOutput(Guid.NewGuid(), input.FirstName, input.LastName, input.Email);
-        _participants.Add(participant);
+        var email = new Email(input.Email);
+        var phoneNumber = string.IsNullOrWhiteSpace(input.PhoneNumber)
+            ? null : new PhoneNumber(input.PhoneNumber);
 
-        return await Task.FromResult(participant);
+        if (await participants.EmailAlreadyExistsAsync(email.Value, ct))
+           throw new ArgumentException("Email already exists");
+
+        var participantId = Guid.NewGuid();
+        var dateNow = DateTime.UtcNow;
+
+        var participant = new Participant(
+            Id: participantId,
+            Email: email.Value,
+            Created: dateNow,
+            RowVersion: Array.Empty<byte>()
+            );
+
+        await participants.AddAsync(participant);
+
+        await uow.SaveChangesAsync(ct);
+
+        return participantId;
+
     }
 
     // read (all and by id)
-    public async Task<IEnumerable<ParticipantOutput>> GetAllParticipantsAsync(CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<ParticipantOutput>> GetAllParticipantsAsync(CancellationToken ct = default)
     {
-        return await Task.FromResult(_participants);
+       var list = await participants.ListAsync(ct);
+
+        return [.. list.Select(ToOutputModel)];
     }
 
-    public async Task<ParticipantOutput?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
+    public async Task<ParticipantOutput?> GetByIdAsync(Guid participantId, CancellationToken ct)
     {
-        var participant = _participants.FirstOrDefault(p => p.Id == id);
-        return await Task.FromResult(participant);
+        var participant = await participants.GetByIdAsync(participantId, ct);
+
+        return participant is null ? null : ToOutputModel(participant);
     }
 
 
     //update
-    public async Task<ParticipantOutput?> UpdateAsync(UpdateParticipantInput input, CancellationToken cancellationToken)
+    public async Task<ParticipantOutput?> UpdateAsync(UpdateParticipantInput input, CancellationToken ct)
     {
-        var index = _participants.FindIndex(p => p.Id == input.Id);
-        if (index == -1)
-        {
+        
+        var participant = await participants.GetByIdAsync(input.Id, ct);
+        if (participant is null)
             return null;
-        }
 
-        var existingParticipant = _participants[index];
-        var updatedParticipant = existingParticipant with
+        var updatedParticipant = participant with
         {
-            FirstName = input.FirstName,
-            LastName = input.LastName,
-            Email = input.Email
+            Email = input.Email,
+            RowVersion = input.RowVersion
         };
 
-        _participants[index] = updatedParticipant;
+        
+        await participants.UpdateAsync(updatedParticipant, ct);
 
-        return await Task.FromResult(updatedParticipant);
+        await uow.SaveChangesAsync(ct);
+
+        return ToOutputModel(updatedParticipant);
     }
 
     //delete
-    public async Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken)
+    public async Task DeleteAsync(Guid participantId, byte[] rowVersion, CancellationToken ct = default)
     {
-        var index = _participants.FindIndex(p => p.Id == id);
-        if (index == -1)
-        {
-            return false;
-        }
+        var participant = await participants.GetByIdAsync(participantId, ct)
+                       ?? throw new ArgumentException("Participant not found");
 
-        _participants.RemoveAt(index);
+        await participants.UpdateAsync(participant with { RowVersion = rowVersion }, ct);
 
-        return await Task.FromResult(true);
+        await participants.DeleteAsync(participantId, ct);
+
+        await uow.SaveChangesAsync(ct);
     }
+
+
 }
 
 

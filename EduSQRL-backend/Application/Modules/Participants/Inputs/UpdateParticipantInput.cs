@@ -9,5 +9,6 @@ public record UpdateParticipantInput
     Guid Id,
     string FirstName,
     string LastName,
-    string Email
+    string Email,
+    byte[] RowVersion
 );
