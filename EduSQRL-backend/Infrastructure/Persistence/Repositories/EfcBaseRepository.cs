@@ -7,18 +7,20 @@ namespace Infrastructure.Persistence.Repositories;
 
 public abstract class EfcBaseRepository<TEntity, TKey, TModel>(DbContext context) : IBaseRepository<TModel, TKey> where TEntity : class, IEntity<TKey>
 {
-    // context / conection to database
+    // context connection to database
     protected DbContext Context { get; } = context;
     protected DbSet<TEntity> Set => Context.Set<TEntity>();
 
 
+    // method to convert (map) from entity to model
     public abstract TModel ToModel(TEntity entity);
 
+
     // Add
-    public abstract Task<TModel> AddAsync(TModel entity, CancellationToken ct = default);
+    public abstract Task AddAsync(TModel model, CancellationToken ct = default);
 
     // Update
-    public abstract Task<bool> UpdateAsync(TModel entity, CancellationToken ct = default);
+    public abstract Task UpdateAsync(TModel model, CancellationToken ct = default);
     
      
     // list all 

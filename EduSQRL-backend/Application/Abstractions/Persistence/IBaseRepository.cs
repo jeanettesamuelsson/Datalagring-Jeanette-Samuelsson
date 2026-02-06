@@ -4,7 +4,7 @@ namespace Application.Abstractions.Persistence;
 public interface IBaseRepository<TModel, in TKey>
 {
     //create 
-    Task<TModel> AddAsync(TModel entity, CancellationToken ct = default);
+    Task AddAsync(TModel model, CancellationToken ct = default);
 
     //read (all and by id)
     Task<TModel?> GetByIdAsync(TKey id, CancellationToken ct = default);
@@ -12,7 +12,7 @@ public interface IBaseRepository<TModel, in TKey>
     Task<IReadOnlyList<TModel>> ListAsync(CancellationToken ct = default);
 
     // update
-    Task<bool> UpdateAsync(TModel entity, CancellationToken ct = default);
+    Task UpdateAsync(TModel model, CancellationToken ct = default);
 
    // delete
     Task DeleteAsync(TKey id, CancellationToken ct = default);

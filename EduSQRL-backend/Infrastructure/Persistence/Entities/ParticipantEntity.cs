@@ -1,6 +1,8 @@
-﻿namespace Infrastructure.Persistence.Entities;
+﻿using Application.Abstractions.Persistence;
 
-public class ParticipantEntity
+namespace Infrastructure.Persistence.Entities;
+
+public class ParticipantEntity : IEntity<Guid>
 {
     public Guid Id { get; set; }
     public string FirstName { get; set; } = null!;
