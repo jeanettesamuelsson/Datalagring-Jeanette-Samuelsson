@@ -1,6 +1,6 @@
 ﻿namespace Infrastructure.Persistence.Entities;
 
-internal class LocationEntity
+public class LocationEntity
 {
     public Guid Id { get; set; }
     public string Name { get; set; } = null!; 

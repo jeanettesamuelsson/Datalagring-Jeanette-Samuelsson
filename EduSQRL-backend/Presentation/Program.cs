@@ -1,6 +1,7 @@
 using Application.Abstractions.Persistence;
 using Application.Modules.Participants;
 using Application.Modules.Participants.Inputs;
+using Application.Modules.Roles;
 using Infrastructure.Persistence.Data;
 using Infrastructure.Persistence.Repositories;
 using Infrastructure.Persistence.UnitOfWork;
@@ -17,6 +18,8 @@ builder.Services.AddOpenApi();
 builder.Services.AddScoped<IParticipantRepository, ParticipantEntityRepository>();
 builder.Services.AddScoped<IUnitOfWork, EfcUnitOfWork>();
 builder.Services.AddScoped<IParticipantService, ParticipantService>();
+builder.Services.AddScoped<IRoleRepository, RoleRepository>();
+builder.Services.AddScoped<IRoleService, RoleService>();
 
 builder.Services.AddCors();
 
@@ -44,6 +47,18 @@ app.UseCors(x => x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 var list = new List<ParticipantDto>(){};
 
 // api endpoins
+
+
+// role endpoints
+
+app.MapGet("api/roles", async (IRoleService service, CancellationToken ct) =>
+{
+    var roles = await service.GetRolesAsync(ct);
+    return Results.Ok(roles);
+});
+   
+
+// participant endpoints
 
 // create
 app.MapPost("api/participants", async (CreateParticipantRequest request, IParticipantService service, CancellationToken ct)  =>

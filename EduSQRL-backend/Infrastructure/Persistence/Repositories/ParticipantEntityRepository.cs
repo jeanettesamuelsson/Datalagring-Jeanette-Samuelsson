@@ -1,6 +1,6 @@
 ﻿
 using Application.Modules.Participants;
-using Application.Modules.Participants.PersistanceModels;
+using Application.Modules.PersistanceModels;
 using Domain.Participants.ValueObjects;
 using Infrastructure.Persistence.Data;
 using Infrastructure.Persistence.Entities;

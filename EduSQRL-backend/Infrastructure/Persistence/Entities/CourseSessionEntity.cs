@@ -13,4 +13,6 @@ public class CourseSessionEntity
 
     // Navigation Properties
     public CourseEntity Course { get; set; } = null!;
+
+    public LocationEntity Location { get; set; } = null!;
 }

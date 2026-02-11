@@ -3,9 +3,9 @@
 using Application.Abstractions.Persistence;
 using Application.Modules.Participants.Inputs;
 using Application.Modules.Participants.Outputs;
-using Application.Modules.Participants.PersistanceModels;
+using Application.Modules.PersistanceModels;
 using Domain.Participants.ValueObjects;
-using System.Reflection.Metadata;
+
 
 namespace Application.Modules.Participants;
 

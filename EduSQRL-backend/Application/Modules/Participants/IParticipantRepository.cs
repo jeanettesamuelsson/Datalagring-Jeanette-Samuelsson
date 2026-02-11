@@ -1,6 +1,6 @@
 ﻿
 using Application.Abstractions.Persistence;
-using Application.Modules.Participants.PersistanceModels;
+using Application.Modules.PersistanceModels;
 
 
 namespace Application.Modules.Participants;
