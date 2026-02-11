@@ -24,9 +24,12 @@ public abstract class EfcBaseRepository<TEntity, TKey, TModel>(DbContext context
     
      
     // list all 
-    public async Task<IReadOnlyList<TModel>> ListAsync(CancellationToken ct = default)
+    public virtual async Task<IReadOnlyList<TModel>> ListAsync(CancellationToken ct = default)
     {
-        var entities = await Set.AsNoTracking().ToListAsync(ct);
+        var entities = await Set
+            
+            .AsNoTracking()
+            .ToListAsync(ct);
 
         return [..entities.Select(ToModel)];
     }

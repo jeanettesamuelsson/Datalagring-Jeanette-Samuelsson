@@ -4,6 +4,7 @@ using Application.Abstractions.Persistence;
 using Application.Modules.Participants.Inputs;
 using Application.Modules.Participants.Outputs;
 using Application.Modules.PersistanceModels;
+using Application.Modules.Roles;
 using Domain.Participants.ValueObjects;
 
 
@@ -12,11 +13,17 @@ namespace Application.Modules.Participants;
 public class ParticipantService
     (
     IParticipantRepository participants,
-    IUnitOfWork uow
+    IUnitOfWork uow,
+    IRoleService roleService
 
-    ): IParticipantService
+    ) : IParticipantService
+
+    
+
 {
-   
+
+    private readonly IRoleService _roleService = roleService;
+
     private static ParticipantOutput ToOutputModel(Participant p) => new(
         p.Id,
         p.FirstName,
@@ -37,6 +44,18 @@ public class ParticipantService
 
         if (await participants.EmailAlreadyExistsAsync(email.Value, ct))
            throw new ArgumentException("Email already exists");
+
+        //validate roles input
+
+        var roles = await _roleService.GetRolesAsync(ct);
+        var validRoleNames = roles.Select(r => r.RoleName).ToList();
+
+        foreach (var roleName in input.Roles)
+        {
+            if (!validRoleNames.Contains(roleName))
+                throw new ArgumentException($"Invalid role: {roleName}");
+
+        }
 
         var participantId = Guid.NewGuid();
         var dateNow = DateTime.UtcNow;
@@ -83,6 +102,18 @@ public class ParticipantService
         var participant = await participants.GetByIdAsync(input.Id, ct);
         if (participant is null)
             return null;
+
+        //validate roles input
+
+        var roles = await _roleService.GetRolesAsync(ct);
+        var validRoleNames = roles.Select(r => r.RoleName).ToList();
+
+        foreach (var roleName in input.Roles)
+        {
+            if (!validRoleNames.Contains(roleName))
+                throw new ArgumentException($"Invalid role: {roleName}");
+
+        }
 
         var phoneNumber = new PhoneNumber(input.PhoneNumber);
 

@@ -1,4 +1,5 @@
 ﻿
+using Application.Abstractions.Persistence;
 using Application.Modules.Participants;
 using Application.Modules.PersistanceModels;
 using Domain.Participants.ValueObjects;
@@ -87,6 +88,27 @@ public class ParticipantEntityRepository(EduSqrlDbContext context) : EfcBaseRepo
         return await Set.AsNoTracking().AnyAsync(x => x.Email == normalized, ct);
     }
 
+    // override baseRepository GetById, to include roles
+    public override async Task<Participant?> GetByIdAsync(Guid id, CancellationToken ct = default)
+    {
+        var entity = await Set
+            .Include(p => p.Roles) 
+            .AsNoTracking()
+            .SingleOrDefaultAsync(x => x.Id == id, ct);
+
+        return entity is null ? null : ToModel(entity);
+    }
+
+    // override baseRepository ListAsync, to include roles
+    public override async Task<IReadOnlyList<Participant>> ListAsync(CancellationToken ct = default)
+    {
+        var entities = await Set
+            .Include(p => p.Roles) 
+            .AsNoTracking()
+            .ToListAsync(ct);
+
+        return entities.Select(ToModel).ToList();
+    }
 }
 
 
