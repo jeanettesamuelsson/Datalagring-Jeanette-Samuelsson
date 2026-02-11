@@ -1,15 +1,23 @@
-using Microsoft.EntityFrameworkCore;
-using Presentation.Dtos;
-using Microsoft.AspNetCore.Mvc;
+using Application.Abstractions.Persistence;
 using Application.Modules.Participants;
 using Application.Modules.Participants.Inputs;
-using Infrastructure.Persistence.Migrations.Data;
+using Infrastructure.Persistence.Data;
+using Infrastructure.Persistence.Repositories;
+using Infrastructure.Persistence.UnitOfWork;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Presentation.Dtos;
 
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddOpenApi();
-builder.Services.AddSingleton<IParticipantService, ParticipantService>();
+
+
+builder.Services.AddScoped<IParticipantRepository, ParticipantEntityRepository>();
+builder.Services.AddScoped<IUnitOfWork, EfcUnitOfWork>();
+builder.Services.AddScoped<IParticipantService, ParticipantService>();
+
 builder.Services.AddCors();
 
 builder.Services.AddDbContext<EduSqrlDbContext>(options => options.UseSqlServer(
@@ -20,6 +28,16 @@ builder.Services.AddDbContext<EduSqrlDbContext>(options => options.UseSqlServer(
 var app = builder.Build();
 
 app.MapOpenApi();
+
+if (app.Environment.IsDevelopment())
+{
+    
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/openapi/v1.json", "v1");
+    });
+}
+
 app.UseHttpsRedirection();
 app.UseCors(x => x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 
@@ -32,11 +50,11 @@ app.MapPost("api/participants", async (CreateParticipantRequest request, IPartic
 {
     //map (create) a dto from user input 
 
-    var input = new CreateParticipantInput(request.FirstName, request.LastName, request.Email);
+    var input = new CreateParticipantInput(request.FirstName, request.LastName, request.Email, request.PhoneNumber, request.Roles);
 
-    var participant = await service.CreateAsync(input, ct);
+    var id = await service.CreateAsync(input, ct);
 
-    return Results.Created($"/api/participants/{participant.Id}", participant);
+    return Results.Created($"/api/participants/{id}", id);
 
 });
 
@@ -58,20 +76,21 @@ app.MapGet("api/participants/{id:guid}", async (Guid id, IParticipantService ser
 // update
 app.MapPut("/api/participants/{id:guid}", async (Guid id, [FromBody] UpdateParticipantRequest request, IParticipantService service, CancellationToken ct) =>
 {
-    var input = new UpdateParticipantInput(request.Id, request.FirstName, request.LastName, request.Email);
-    var participant = await service.UpdateAsync(input, ct);
+    var input = new UpdateParticipantInput(request.Id, request.FirstName, request.LastName, request.Email, request.PhoneNumber, request.Roles, request.RowVersion);
+    var result = await service.UpdateAsync(input, ct);
 
-    return Results.Ok(participant);
+    return result is not null ? Results.Ok(result) : Results.NotFound();
 
 });
 
 // delete
-app.MapDelete("/api/participants/{id:guid}", async (Guid id, IParticipantService service, CancellationToken ct) =>
+app.MapDelete("/api/participants/{id:guid}", async (Guid id, [FromHeader(Name = "If-Match")] string rowVersionStr, IParticipantService service, CancellationToken ct) =>
 {
-    var result = await service.DeleteAsync(id, ct);
+    // convert string to byte array
+    var rowVersion = Convert.FromBase64String(rowVersionStr);
 
-    //if true 204 NoContent (deleted successfully) else 404 NotFound
-    return result ? Results.NoContent() : Results.NotFound();
+    await service.DeleteAsync(id, rowVersion, ct);
+    return Results.NoContent();
 });
 
 app.Run();

@@ -1,6 +1,5 @@
 ﻿using Application.Abstractions.Persistence;
-using Infrastructure.Persistence.Migrations.Data;
-
+using Infrastructure.Persistence.Data;
 
 namespace Infrastructure.Persistence.UnitOfWork;
 

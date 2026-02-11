@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Infrastructure.Persistence.Migrations.Data.Configurations;
+namespace Infrastructure.Persistence.Data.Configurations;
 
 public class CourseSessionConfiguration : IEntityTypeConfiguration<CourseSessionEntity>
 {

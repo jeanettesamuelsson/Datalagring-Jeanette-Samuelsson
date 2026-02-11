@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Domain.Participants.ValueObjects;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -10,5 +11,7 @@ public record UpdateParticipantInput
     string FirstName,
     string LastName,
     string Email,
+    string PhoneNumber,
+    List<string> Roles,
     byte[] RowVersion
 );

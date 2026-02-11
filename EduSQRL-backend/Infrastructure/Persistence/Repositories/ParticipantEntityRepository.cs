@@ -1,8 +1,9 @@
 ﻿
 using Application.Modules.Participants;
 using Application.Modules.Participants.PersistanceModels;
+using Domain.Participants.ValueObjects;
+using Infrastructure.Persistence.Data;
 using Infrastructure.Persistence.Entities;
-using Infrastructure.Persistence.Migrations.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
@@ -16,10 +17,21 @@ public class ParticipantEntityRepository(EduSqrlDbContext context) : EfcBaseRepo
         if (model.Id == Guid.Empty)
             throw new ArgumentException("Id must be set when adding a new participant.");
 
+        //get existing roles from database 
+
+        var existingRoles = await context.Roles
+        .Where(r => model.Roles.Contains(r.RoleName))
+        .ToListAsync(ct);
+
+        // add a ToEntity method to map from Model to Entity?
         var entity = new ParticipantEntity
         {
             Id = model.Id,
             Email = model.Email,
+            FirstName = model.FirstName,
+            LastName = model.LastName,
+            PhoneNumber = model.PhoneNumber.Value,
+            Roles = existingRoles,
             Created = model.Created == default ? DateTime.UtcNow : model.Created,  //set time if not already set
             Concurrency = model.RowVersion
         };
@@ -29,22 +41,39 @@ public class ParticipantEntityRepository(EduSqrlDbContext context) : EfcBaseRepo
 
     //method to map from ParticipantEntity to ParticipantModel
     public override Participant ToModel(ParticipantEntity entity) => new(
+
         entity.Id,
+        entity.FirstName,
+        entity.LastName,
         entity.Email,
+        new PhoneNumber(entity.PhoneNumber),
+        entity.Roles.Select(r => r.RoleName).ToList(),
         entity.Created,
         entity.Concurrency
+        
+    );
 
-        );
-    
     public override async Task UpdateAsync(Participant model, CancellationToken ct = default)
     {
-        var entity = await Set.SingleOrDefaultAsync(x => x.Id == model.Id, ct)
+        // get the existing entity from database and include roles from ParticipantRoles
+
+        var entity = await Set
+            .Include(x => x.Roles)
+            .SingleOrDefaultAsync(x => x.Id == model.Id, ct)
             ?? throw new ArgumentException($"Participant with id {model.Id} not found.");
+
+        // optimistic concurrency control - set the original value of the concurrency
 
         Context.Entry(entity).Property(x => x.Concurrency).OriginalValue = model.RowVersion;
 
 
+        entity.FirstName = model.FirstName;
+        entity.LastName = model.LastName;
         entity.Email = model.Email;
+        entity.PhoneNumber = model.PhoneNumber.Value;
+        entity.Roles = await context.Roles
+            .Where(r => model.Roles.Contains(r.RoleName))
+            .ToListAsync(ct);
         entity.Created = model.Created;
         entity.Modified = DateTime.UtcNow;
 

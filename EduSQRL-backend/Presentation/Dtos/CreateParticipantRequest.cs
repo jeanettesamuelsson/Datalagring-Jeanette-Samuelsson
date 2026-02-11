@@ -2,8 +2,10 @@
 
 public record CreateParticipantRequest
 {
-    public string FirstName { get; init; } = string.Empty;
-    public string LastName { get; init; } = string.Empty;
-    public string Email { get; init; } = string.Empty;
-    public string PhoneNumber { get; init; } = string.Empty;
+    public required string FirstName { get; init; } 
+    public required string LastName { get; init; } 
+    public required string Email { get; init; } 
+    public required string PhoneNumber { get; init; } 
+
+    public required List<string> Roles { get; init; }
 }

@@ -16,9 +16,14 @@ public class ParticipantService
 
     ): IParticipantService
 {
+   
     private static ParticipantOutput ToOutputModel(Participant p) => new(
         p.Id,
+        p.FirstName,
+        p.LastName,
         p.Email,
+        p.PhoneNumber.Value,
+        p.Roles,
         p.Created,
         p.RowVersion
 
@@ -28,8 +33,7 @@ public class ParticipantService
     public async Task<Guid> CreateAsync(CreateParticipantInput input, CancellationToken ct)
     {
         var email = new Email(input.Email);
-        var phoneNumber = string.IsNullOrWhiteSpace(input.PhoneNumber)
-            ? null : new PhoneNumber(input.PhoneNumber);
+        var phoneNumber = new PhoneNumber(input.PhoneNumber);
 
         if (await participants.EmailAlreadyExistsAsync(email.Value, ct))
            throw new ArgumentException("Email already exists");
@@ -39,7 +43,11 @@ public class ParticipantService
 
         var participant = new Participant(
             Id: participantId,
+            FirstName: input.FirstName,
+            LastName: input.LastName,
             Email: email.Value,
+            PhoneNumber: phoneNumber,
+            Roles: input.Roles,
             Created: dateNow,
             RowVersion: Array.Empty<byte>()
             );
@@ -76,18 +84,29 @@ public class ParticipantService
         if (participant is null)
             return null;
 
+        var phoneNumber = new PhoneNumber(input.PhoneNumber);
+
         var updatedParticipant = participant with
         {
+            FirstName = input.FirstName,
+            LastName = input.LastName,
             Email = input.Email,
+            PhoneNumber = phoneNumber,
+            Roles = input.Roles,
             RowVersion = input.RowVersion
         };
 
-        
-        await participants.UpdateAsync(updatedParticipant, ct);
+        // update and save changes
 
+        await participants.UpdateAsync(updatedParticipant, ct);
         await uow.SaveChangesAsync(ct);
 
-        return ToOutputModel(updatedParticipant);
+        // return the updated participant
+
+        var updated = await participants.GetByIdAsync(input.Id, ct);
+        return updated is null ? null : ToOutputModel(updated);
+
+       
     }
 
     //delete

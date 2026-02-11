@@ -1,10 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Application.Abstractions.Persistence;
+using System.ComponentModel.DataAnnotations;
 
 namespace Infrastructure.Persistence.Entities;
 
-public class RoleEntity
+public class RoleEntity : IEntity<Guid>
 {
-    public int Id { get; set; }
+    public Guid Id { get; set; }
     public string RoleName { get; set; } = null!;
     public ICollection<ParticipantEntity> Participants { get; set; } = [];
     public byte[] Concurrency { get; set; } = null!;

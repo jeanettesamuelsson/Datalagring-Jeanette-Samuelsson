@@ -1,10 +1,14 @@
-﻿namespace Presentation.Dtos;
+﻿using Domain.Participants.ValueObjects;
+
+namespace Presentation.Dtos;
 
 public record ParticipantDto(
 
     Guid Id,
     string FirstName,
     string LastName,
-    string Email
+    string Email,
+    string PhoneNumber,
+    List<string> Roles
 
 );

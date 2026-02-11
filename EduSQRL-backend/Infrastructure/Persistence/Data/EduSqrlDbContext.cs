@@ -1,7 +1,7 @@
 ﻿using Infrastructure.Persistence.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace Infrastructure.Persistence.Migrations.Data;
+namespace Infrastructure.Persistence.Data;
 public sealed class EduSqrlDbContext(DbContextOptions<EduSqrlDbContext> options) : DbContext(options)
 {
     
