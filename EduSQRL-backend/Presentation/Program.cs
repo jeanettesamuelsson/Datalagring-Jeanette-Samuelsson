@@ -26,6 +26,7 @@ builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddScoped<ICourseRepository, CourseRepository>();
 builder.Services.AddScoped<ICourseService, CourseService>();
 
+
 builder.Services.AddCors();
 
 builder.Services.AddDbContext<EduSqrlDbContext>(options => options.UseSqlServer(
