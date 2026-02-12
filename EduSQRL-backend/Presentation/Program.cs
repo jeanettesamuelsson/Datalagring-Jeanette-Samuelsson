@@ -1,6 +1,8 @@
 using Application.Abstractions.Persistence;
 using Application.Modules.Courses;
 using Application.Modules.Courses.Input;
+using Application.Modules.Locations;
+using Application.Modules.Locations.Input;
 using Application.Modules.Participants;
 using Application.Modules.Participants.Inputs;
 using Application.Modules.Roles;
@@ -11,6 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Presentation.Dtos;
 using Presentation.Dtos.Course;
+using Presentation.Dtos.Location;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -25,6 +28,8 @@ builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddScoped<ICourseRepository, CourseRepository>();
 builder.Services.AddScoped<ICourseService, CourseService>();
+builder.Services.AddScoped<ILocationRepository, LocationRepository>();
+builder.Services.AddScoped<ILocationService, LocationService>();
 
 
 builder.Services.AddCors();
@@ -134,84 +139,143 @@ app.MapDelete("/api/participants/{id:guid}", async (Guid id, [FromHeader(Name = 
 
 #region course endpoints
 
-var courseGroup = app.MapGroup("/courses").WithTags("Courses");
+// Gruppen definierar bas-rutten en gång
+var courseGroup = app.MapGroup("/api/courses").WithTags("Courses");
 
-// create
-app.MapPost("api/courses", async (CreateCourseRequest request, ICourseService service, CancellationToken ct) =>
+// Använd "/" istället för "api/courses" eftersom det redan finns i gruppen
+courseGroup.MapPost("/", async (CreateCourseRequest request, ICourseService service, CancellationToken ct) =>
 {
     try
     {
-        //map (create) a dto from user input 
-
         var input = new CreateCourseInput(request.CourseCode, request.CourseName, request.Description);
-
         var id = await service.CreateAsync(input, ct);
-
         return Results.Created($"/api/courses/{id}", id);
-    } catch (ArgumentException ex)
+    }
+    catch (ArgumentException ex)
     {
         return Results.BadRequest(ex.Message);
     }
-
 });
 
-// read all
-app.MapGet("api/courses", async (ICourseService service, CancellationToken ct) =>
+courseGroup.MapGet("/", async (ICourseService service, CancellationToken ct) =>
 {
     var courses = await service.GetAllCoursesAsync(ct);
     return Results.Ok(courses);
-
 });
 
-// read by id
-app.MapGet("api/courses/{id:guid}", async (Guid id, ICourseService service, CancellationToken ct) =>
+courseGroup.MapGet("/{id:guid}", async (Guid id, ICourseService service, CancellationToken ct) =>
 {
     var course = await service.GetByIdAsync(id, ct);
     return course is not null ? Results.Ok(course) : Results.NotFound();
 });
 
-
-// update
-app.MapPut("/api/courses/{id:guid}", async (Guid id, [FromBody] UpdateCourseRequest request, ICourseService service, CancellationToken ct) =>
+courseGroup.MapPut("/{id:guid}", async (Guid id, [FromBody] UpdateCourseRequest request, ICourseService service, CancellationToken ct) =>
 {
+    // En liten säkerhetscheck: ID i URL:en bör matcha ID i bodyn
+    if (id != request.Id) return Results.BadRequest("ID mismatch.");
+
     try
     {
         var input = new UpdateCourseInput(request.Id, request.CourseCode, request.CourseName, request.Description, request.RowVersion);
         var result = await service.UpdateAsync(input, ct);
-
         return result is not null ? Results.Ok(result) : Results.NotFound();
-
-    } catch (ArgumentException ex)
-
+    }
+    catch (ArgumentException ex)
     {
         return Results.BadRequest(ex.Message);
-
     }
-
-   
-
 });
 
-// delete
-app.MapDelete("/api/courses/{id:guid}", async (Guid id, [FromHeader(Name = "If-Match")] string rowVersionStr, ICourseService service, CancellationToken ct) =>
+courseGroup.MapDelete("/{id:guid}", async (Guid id, [FromHeader(Name = "If-Match")] string rowVersionStr, ICourseService service, CancellationToken ct) =>
 {
     try
     {
-        // convert string to byte array
         var rowVersion = Convert.FromBase64String(rowVersionStr);
-
         await service.DeleteAsync(id, rowVersion, ct);
         return Results.NoContent();
+    }
+    catch (ArgumentException ex)
+    {
+        return Results.NotFound(ex.Message);
+    }
+});
 
-    } catch(ArgumentException ex)
+#endregion
 
+#region location endpoints
+
+
+var locationGroup = app.MapGroup("/api/locations").WithTags("Location");
+
+locationGroup.MapPost("/", async (CreateLocationRequest request, ILocationService service, CancellationToken ct) =>
+{
+    try
+    {
+        var input = new CreateLocationInput(request.Name);
+        var id = await service.CreateAsync(input, ct);
+
+        
+        return Results.Created($"/api/locations/{id}", id);
+    }
+    catch (ArgumentException ex)
+    {
+        return Results.BadRequest(ex.Message);
+    }
+});
+
+locationGroup.MapGet("/", async (ILocationService service, CancellationToken ct) =>
+{
+    var locations = await service.GetAllAsync(ct);
+    return Results.Ok(locations);
+
+});
+
+locationGroup.MapGet("/{id:guid}", async (Guid id, ILocationService service, CancellationToken ct) =>
+{
+
+    var location = await service.GetByIdAsync(id, ct);
+    return location is not null ? Results.Ok(location) : Results.NotFound();
+
+});
+
+
+locationGroup.MapPut("/{id:guid}", async (Guid id, [FromBody] UpdateLocationRequest request, ILocationService service, CancellationToken ct) =>
+{
+
+    if (id != request.Id) return Results.BadRequest("ID mismatch.");
+
+    try
+    {
+        var input = new UpdateLocationInput(request.Id, request.Name, request.RowVersion);
+        var result = await service.UpdateAsync(input, ct);
+        return result is not null ? Results.Ok(result) : Results.NotFound();
+    }
+    catch (ArgumentException ex)
+    {
+        return Results.BadRequest(ex.Message);
+    }
+
+});
+
+locationGroup.MapDelete("/{id:guid}", async (Guid id, [FromHeader(Name = "If-Match")] string rowVersionStr, ILocationService service, CancellationToken ct) =>
+{
+    try
+    {
+        var rowVersion = Convert.FromBase64String(rowVersionStr);
+        await service.DeleteAsync(id, rowVersion, ct);
+        return Results.NoContent();
+    }
+
+    catch (ArgumentException ex)
     {
         return Results.NotFound(ex.Message);
     }
 
 });
 
+
 #endregion
+
 
 app.Run();
 
