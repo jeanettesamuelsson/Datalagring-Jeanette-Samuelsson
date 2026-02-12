@@ -1,6 +1,8 @@
-﻿namespace Infrastructure.Persistence.Entities;
+﻿using Application.Abstractions.Persistence;
 
-public class LocationEntity
+namespace Infrastructure.Persistence.Entities;
+
+public class LocationEntity : IEntity<Guid>
 {
     public Guid Id { get; set; }
     public string Name { get; set; } = null!; 
@@ -8,5 +10,6 @@ public class LocationEntity
     public DateTime Created { get; set; }
     public DateTime Modified { get; set; }
 
-    public virtual ICollection<CourseSessionEntity> Sessions { get; set; } = [];
+    public virtual ICollection<CourseSessionEntity> CourseSessions { get; set; } = [];
+
 }

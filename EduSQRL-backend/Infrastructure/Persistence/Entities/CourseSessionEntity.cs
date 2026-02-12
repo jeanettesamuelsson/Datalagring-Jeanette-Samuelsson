@@ -1,9 +1,12 @@
-﻿namespace Infrastructure.Persistence.Entities;
+﻿using Application.Abstractions.Persistence;
 
-public class CourseSessionEntity
+namespace Infrastructure.Persistence.Entities;
+
+public class CourseSessionEntity : IEntity<Guid>
 {
     public Guid Id { get; set; }
     public Guid CourseId { get; set; }
+    public Guid LocationId { get; set; }
     public DateTime StartDate { get; set; } 
     public DateTime EndDate { get; set; }   
     public int Capacity { get; set; }      

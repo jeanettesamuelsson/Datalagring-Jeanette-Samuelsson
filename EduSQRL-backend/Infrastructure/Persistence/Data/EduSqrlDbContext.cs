@@ -11,6 +11,8 @@ public sealed class EduSqrlDbContext(DbContextOptions<EduSqrlDbContext> options)
     public DbSet<CourseEntity> Courses => Set<CourseEntity>();
     public DbSet<CourseSessionEntity> CourseSessions => Set<CourseSessionEntity>();
 
+    public DbSet<LocationEntity> Locations => Set<LocationEntity>();
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

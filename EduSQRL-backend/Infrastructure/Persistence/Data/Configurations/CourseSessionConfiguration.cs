@@ -41,5 +41,22 @@ public class CourseSessionConfiguration : IEntityTypeConfiguration<CourseSession
         .IsRequired()
         .HasDefaultValueSql("(SYSUTCDATETIME())", "DF_Course_Sessions_Modified")
         .ValueGeneratedOnAddOrUpdate();
+
+
+        // relation to
+
+        //Course
+        builder.HasOne(s => s.Course)
+       .WithMany(c => c.CourseSessions)
+       .HasForeignKey(s => s.CourseId)
+       .OnDelete(DeleteBehavior.Cascade);
+
+        //Location
+        builder.HasOne(s => s.Location)
+        .WithMany(l => l.CourseSessions) 
+        .HasForeignKey(s => s.LocationId)
+        .OnDelete(DeleteBehavior.Restrict);
+
+
     }
 }

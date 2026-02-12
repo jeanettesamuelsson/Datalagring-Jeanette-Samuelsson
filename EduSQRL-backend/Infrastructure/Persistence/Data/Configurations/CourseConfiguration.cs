@@ -50,11 +50,5 @@ public class CourseConfiguration : IEntityTypeConfiguration<CourseEntity>
         .ValueGeneratedOnAddOrUpdate();
 
 
-        //Add relation to course_session
-
-        builder.HasMany(c => c.CourseSessions)
-           .WithOne(s => s.Course)
-           .HasForeignKey(s => s.CourseId);
-
     }
 }
