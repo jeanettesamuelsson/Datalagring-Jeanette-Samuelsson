@@ -1,7 +1,8 @@
-﻿using Application.Modules.PersistanceModels;
+﻿
 using Application.Modules.Roles;
 using Infrastructure.Persistence.Data;
 using Infrastructure.Persistence.Entities;
+using Domain.Models;
 
 
 namespace Infrastructure.Persistence.Repositories;

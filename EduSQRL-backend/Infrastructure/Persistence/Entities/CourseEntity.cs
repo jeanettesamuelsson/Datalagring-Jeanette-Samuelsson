@@ -1,6 +1,8 @@
-﻿namespace Infrastructure.Persistence.Entities;
+﻿using Application.Abstractions.Persistence;
 
-public class CourseEntity
+namespace Infrastructure.Persistence.Entities;
+
+public class CourseEntity : IEntity<Guid>
 {
     public Guid Id { get; set; }
     public string CourseName { get; set; } = null!;

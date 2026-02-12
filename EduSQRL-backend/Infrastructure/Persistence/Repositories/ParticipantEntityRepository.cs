@@ -1,12 +1,11 @@
 ﻿
-using Application.Abstractions.Persistence;
+
 using Application.Modules.Participants;
-using Application.Modules.PersistanceModels;
 using Domain.Participants.ValueObjects;
 using Infrastructure.Persistence.Data;
 using Infrastructure.Persistence.Entities;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Domain.Models;
 
 namespace Infrastructure.Persistence.Repositories;
 
