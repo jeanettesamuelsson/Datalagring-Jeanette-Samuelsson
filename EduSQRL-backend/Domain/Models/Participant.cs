@@ -1,6 +1,6 @@
 ﻿using Domain.Participants.ValueObjects;
 
-namespace Application.Modules.PersistanceModels;
+namespace Domain.Models;
 
 public sealed record Participant(
     Guid Id, 

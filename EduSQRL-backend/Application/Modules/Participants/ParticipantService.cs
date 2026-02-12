@@ -3,9 +3,9 @@
 using Application.Abstractions.Persistence;
 using Application.Modules.Participants.Inputs;
 using Application.Modules.Participants.Outputs;
-using Application.Modules.PersistanceModels;
-using Application.Modules.Roles;
 using Domain.Participants.ValueObjects;
+using Application.Modules.Roles;
+using Domain.Models;
 
 
 namespace Application.Modules.Participants;
@@ -18,7 +18,6 @@ public class ParticipantService
 
     ) : IParticipantService
 
-    
 
 {
 

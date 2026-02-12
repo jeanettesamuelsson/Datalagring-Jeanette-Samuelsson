@@ -1,5 +1,4 @@
-﻿
-namespace Application.Modules.PersistanceModels;
+﻿namespace Domain.Models;
 
 public sealed record Role
 (

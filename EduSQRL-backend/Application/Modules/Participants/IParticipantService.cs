@@ -1,6 +1,7 @@
 ﻿using Application.Modules.Participants.Inputs;
 using Application.Modules.Participants.Outputs;
 
+
 namespace Application.Modules.Participants;
 
 public interface IParticipantService
