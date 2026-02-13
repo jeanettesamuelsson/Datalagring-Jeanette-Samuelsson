@@ -24,10 +24,13 @@ builder.Services.AddOpenApi();
 builder.Services.AddScoped<IParticipantRepository, ParticipantEntityRepository>();
 builder.Services.AddScoped<IUnitOfWork, EfcUnitOfWork>();
 builder.Services.AddScoped<IParticipantService, ParticipantService>();
+
 builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 builder.Services.AddScoped<IRoleService, RoleService>();
+
 builder.Services.AddScoped<ICourseRepository, CourseRepository>();
 builder.Services.AddScoped<ICourseService, CourseService>();
+
 builder.Services.AddScoped<ILocationRepository, LocationRepository>();
 builder.Services.AddScoped<ILocationService, LocationService>();
 
@@ -71,7 +74,6 @@ app.MapGet("api/roles", async (IRoleService service, CancellationToken ct) =>
 });
 
 #endregion
-
 
 #region participant endpoints
 
@@ -136,13 +138,12 @@ app.MapDelete("/api/participants/{id:guid}", async (Guid id, [FromHeader(Name = 
 
 #endregion
 
-
 #region course endpoints
 
-// Gruppen definierar bas-rutten en gång
+
 var courseGroup = app.MapGroup("/api/courses").WithTags("Courses");
 
-// Använd "/" istället för "api/courses" eftersom det redan finns i gruppen
+
 courseGroup.MapPost("/", async (CreateCourseRequest request, ICourseService service, CancellationToken ct) =>
 {
     try
@@ -275,6 +276,7 @@ locationGroup.MapDelete("/{id:guid}", async (Guid id, [FromHeader(Name = "If-Mat
 
 
 #endregion
+
 
 
 app.Run();

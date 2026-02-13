@@ -86,13 +86,5 @@ public class CourseRepository(EduSqrlDbContext context) : EfcBaseRepository<Cour
     }
 
    
-    public async override Task<IReadOnlyList<Course>> ListAsync(CancellationToken ct = default)
-    {
-        var entities = await Set
-            .AsNoTracking()
-            .ToListAsync(ct);
-
-        return entities.Select(ToModel).ToList();
-    }
 
 }
