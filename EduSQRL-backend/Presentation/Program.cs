@@ -1,6 +1,8 @@
 using Application.Abstractions.Persistence;
 using Application.Modules.Courses;
 using Application.Modules.Courses.Input;
+using Application.Modules.CourseSessions;
+using Application.Modules.CourseSessions.Input;
 using Application.Modules.Locations;
 using Application.Modules.Locations.Input;
 using Application.Modules.Participants;
@@ -13,6 +15,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Presentation.Dtos;
 using Presentation.Dtos.Course;
+using Presentation.Dtos.CourseSession;
 using Presentation.Dtos.Location;
 
 
@@ -67,7 +70,7 @@ var list = new List<ParticipantDto>(){};
 
 var roleGroup = app.MapGroup("/roles").WithTags("Roles");
 
-app.MapGet("api/roles", async (IRoleService service, CancellationToken ct) =>
+roleGroup.MapGet("/", async (IRoleService service, CancellationToken ct) =>
 {
     var roles = await service.GetRolesAsync(ct);
     return Results.Ok(roles);
@@ -80,7 +83,7 @@ app.MapGet("api/roles", async (IRoleService service, CancellationToken ct) =>
 var participantGroup = app.MapGroup("/participants").WithTags("Participants");
 
 // create
-app.MapPost("api/participants", async (CreateParticipantRequest request, IParticipantService service, CancellationToken ct)  =>
+participantGroup.MapPost("/", async (CreateParticipantRequest request, IParticipantService service, CancellationToken ct)  =>
 {
     //map (create) a dto from user input 
 
@@ -93,7 +96,7 @@ app.MapPost("api/participants", async (CreateParticipantRequest request, IPartic
 });
 
 // read all
-app.MapGet("api/participants", async (IParticipantService service, CancellationToken ct) =>
+participantGroup.MapGet("/", async (IParticipantService service, CancellationToken ct) =>
 {
    var participants =await service.GetAllParticipantsAsync(ct);
    return Results.Ok(participants);
@@ -101,7 +104,7 @@ app.MapGet("api/participants", async (IParticipantService service, CancellationT
 });
 
 // read by id
-app.MapGet("api/participants/{id:guid}", async (Guid id, IParticipantService service, CancellationToken ct) =>
+participantGroup.MapGet("/{id:guid}", async (Guid id, IParticipantService service, CancellationToken ct) =>
 {
     var participant = await service.GetByIdAsync(id, ct);
     return participant is not null ? Results.Ok(participant) : Results.NotFound();
@@ -109,25 +112,19 @@ app.MapGet("api/participants/{id:guid}", async (Guid id, IParticipantService ser
 
 // update
 
-app.MapPut("/api/participants/{id:guid}", async (Guid id, [FromBody] UpdateParticipantRequest request, IParticipantService service, CancellationToken ct) =>
+participantGroup.MapPut("/{id:guid}", async (Guid id, [FromBody] UpdateParticipantRequest request, IParticipantService service, CancellationToken ct) =>
 {
     var input = new UpdateParticipantInput(request.Id, request.FirstName, request.LastName, request.Email, request.PhoneNumber, request.Roles, request.RowVersion);
 
-    try {
+   
         var result = await service.UpdateAsync(input, ct);
         return result is not null ? Results.Ok(result) : Results.NotFound();
 
-    } catch (ArgumentException ex) 
-
-    { 
-        return Results.BadRequest(ex.Message);
-    }   
-
-
+  
 });
 
 // delete
-app.MapDelete("/api/participants/{id:guid}", async (Guid id, [FromHeader(Name = "If-Match")] string rowVersionStr, IParticipantService service, CancellationToken ct) =>
+participantGroup.MapDelete("/{id:guid}", async (Guid id, [FromHeader(Name = "If-Match")] string rowVersionStr, IParticipantService service, CancellationToken ct) =>
 {
     // convert string to byte array
     var rowVersion = Convert.FromBase64String(rowVersionStr);
@@ -146,16 +143,11 @@ var courseGroup = app.MapGroup("/api/courses").WithTags("Courses");
 
 courseGroup.MapPost("/", async (CreateCourseRequest request, ICourseService service, CancellationToken ct) =>
 {
-    try
-    {
+    
         var input = new CreateCourseInput(request.CourseCode, request.CourseName, request.Description);
         var id = await service.CreateAsync(input, ct);
         return Results.Created($"/api/courses/{id}", id);
-    }
-    catch (ArgumentException ex)
-    {
-        return Results.BadRequest(ex.Message);
-    }
+    
 });
 
 courseGroup.MapGet("/", async (ICourseService service, CancellationToken ct) =>
@@ -172,33 +164,24 @@ courseGroup.MapGet("/{id:guid}", async (Guid id, ICourseService service, Cancell
 
 courseGroup.MapPut("/{id:guid}", async (Guid id, [FromBody] UpdateCourseRequest request, ICourseService service, CancellationToken ct) =>
 {
-    // En liten säkerhetscheck: ID i URL:en bör matcha ID i bodyn
+    
     if (id != request.Id) return Results.BadRequest("ID mismatch.");
 
-    try
-    {
+    
         var input = new UpdateCourseInput(request.Id, request.CourseCode, request.CourseName, request.Description, request.RowVersion);
         var result = await service.UpdateAsync(input, ct);
         return result is not null ? Results.Ok(result) : Results.NotFound();
-    }
-    catch (ArgumentException ex)
-    {
-        return Results.BadRequest(ex.Message);
-    }
+    
+    
 });
 
 courseGroup.MapDelete("/{id:guid}", async (Guid id, [FromHeader(Name = "If-Match")] string rowVersionStr, ICourseService service, CancellationToken ct) =>
 {
-    try
-    {
+    
         var rowVersion = Convert.FromBase64String(rowVersionStr);
         await service.DeleteAsync(id, rowVersion, ct);
         return Results.NoContent();
-    }
-    catch (ArgumentException ex)
-    {
-        return Results.NotFound(ex.Message);
-    }
+   
 });
 
 #endregion
@@ -210,18 +193,13 @@ var locationGroup = app.MapGroup("/api/locations").WithTags("Location");
 
 locationGroup.MapPost("/", async (CreateLocationRequest request, ILocationService service, CancellationToken ct) =>
 {
-    try
-    {
+    
         var input = new CreateLocationInput(request.Name);
         var id = await service.CreateAsync(input, ct);
 
         
         return Results.Created($"/api/locations/{id}", id);
-    }
-    catch (ArgumentException ex)
-    {
-        return Results.BadRequest(ex.Message);
-    }
+    
 });
 
 locationGroup.MapGet("/", async (ILocationService service, CancellationToken ct) =>
@@ -245,39 +223,77 @@ locationGroup.MapPut("/{id:guid}", async (Guid id, [FromBody] UpdateLocationRequ
 
     if (id != request.Id) return Results.BadRequest("ID mismatch.");
 
-    try
-    {
+   
         var input = new UpdateLocationInput(request.Id, request.Name, request.RowVersion);
         var result = await service.UpdateAsync(input, ct);
         return result is not null ? Results.Ok(result) : Results.NotFound();
-    }
-    catch (ArgumentException ex)
-    {
-        return Results.BadRequest(ex.Message);
-    }
+    
+   
 
 });
 
 locationGroup.MapDelete("/{id:guid}", async (Guid id, [FromHeader(Name = "If-Match")] string rowVersionStr, ILocationService service, CancellationToken ct) =>
 {
-    try
-    {
+   
         var rowVersion = Convert.FromBase64String(rowVersionStr);
         await service.DeleteAsync(id, rowVersion, ct);
         return Results.NoContent();
-    }
-
-    catch (ArgumentException ex)
-    {
-        return Results.NotFound(ex.Message);
-    }
-
+   
 });
 
 
 #endregion
 
+#region course session endpoints
 
+var courseSessionGroup = app.MapGroup("/api/courseSessions").WithTags("CourseSessions");
+
+
+courseSessionGroup.MapPost("/", async (CreateCourseSessionRequest request, ICourseSessionService service, CancellationToken ct) =>
+{
+
+    var input = new CreateCourseSessionInput(request.CourseId, request.LocationId, request.StartDate, request.EndDate, request.Capacity);
+    var id = await service.CreateAsync(input, ct);
+    return Results.Created($"/api/courseSessions/{id}", id);
+ 
+});
+
+courseSessionGroup.MapGet("/", async (ICourseSessionService service, CancellationToken ct) =>
+{
+    var courseSessions = await service.GetAllCourseSessionsAsync(ct);
+    return Results.Ok(courseSessions);
+});
+
+courseSessionGroup.MapGet("/{id:guid}", async (Guid id, ICourseSessionService service, CancellationToken ct) =>
+{
+    var courseSession = await service.GetByIdAsync(id, ct);
+    return courseSession is not null ? Results.Ok(courseSession) : Results.NotFound();
+});
+
+courseSessionGroup.MapPut("/{id:guid}", async (Guid id, [FromBody] UpdateCourseSessionRequest request, ICourseSessionService service, CancellationToken ct) =>
+{
+
+    if (id != request.Id) return Results.BadRequest("ID mismatch.");
+
+    
+    
+     var input = new UpdateCourseSessionInput(request.Id, request.CourseId, request.LocationId, request.StartDate, request.EndDate, request.Capacity, request.RowVersion);
+     var result = await service.UpdateAsync(input, ct);
+     return result is not null ? Results.Ok(result) : Results.NotFound();
+    
+    
+});
+
+courseSessionGroup.MapDelete("/{id:guid}", async (Guid id, [FromHeader(Name = "If-Match")] string rowVersionStr, ICourseSessionService service, CancellationToken ct) =>
+{
+    
+   var rowVersion = Convert.FromBase64String(rowVersionStr);
+   await service.DeleteAsync(id, rowVersion, ct);
+   return Results.NoContent();
+   
+});
+
+#endregion
 
 app.Run();
 
