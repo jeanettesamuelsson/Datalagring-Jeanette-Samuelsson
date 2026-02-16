@@ -9,7 +9,6 @@ const CircularNav = () => {
     { to: "/courses", icon: <Book size={20} />, label: "Lägg till kurs" },
     { to: "/instances", icon: <Calendar size={20} />, label: "Tillfällen" },
     { to: "/participants", icon: <Users size={20} />, label: "Deltagare" },
-    { to: "/teachers", icon: <GraduationCap size={20} />, label: "Lärare" },
     { to: "/registrations", icon: <GraduationCap size={20} />, label: "Registrera" },
   ];
 

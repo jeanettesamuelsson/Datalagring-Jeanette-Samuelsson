@@ -1,55 +1,104 @@
 import React, { useState, useEffect } from 'react';
-import { mockData } from '../data/mockData';
 
 const Registrations = () => {
+  // State för listor från databasen
   const [registrations, setRegistrations] = useState([]);
+  const [participants, setParticipants] = useState([]);
+  const [sessions, setSessions] = useState([]);
+  
+  // State för laddning/fel
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // State för formuläret (matchar din CreateRegistrationInput)
   const [formData, setFormData] = useState({
-    email: '', // Ändrat från studentId till email
-    instanceId: '',
-    regDate: new Date().toISOString().split('T')[0] 
+    participantId: '',
+    courseSessionId: '',
   });
 
+  const BASE_URL = 'https://localhost:7054';
+
+  // 1. Hämta all data vid start
   useEffect(() => {
-    // Vi hämtar de befintliga registreringarna från mockData vid start
-    setRegistrations(mockData.registrations || []); 
-  }, []);
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        
+        // Vi kör alla hämtningar parallellt för snabbhet
+        const [regRes, partRes, sessRes] = await Promise.all([
+          fetch(`${BASE_URL}/api/registrations`),
+          fetch(`${BASE_URL}/participants`), // Notera: ingen /api/ enligt din Program.cs
+          fetch(`${BASE_URL}/api/courseSessions`)
+        ]);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    
-    // Vi letar upp rätt person och kurs med de nya namnen
-    const student = mockData.participants.find(p => p.email === formData.email);
-    const instance = mockData.courseInstances.find(i => i.instanceId === parseInt(formData.instanceId));
-    const course = mockData.courses.find(c => c.courseCode === instance?.courseCode);
+        if (!regRes.ok || !partRes.ok || !sessRes.ok) throw new Error("Kunde inte hämta data");
 
-    const newReg = {
-      registrationId: registrations.length + 1,
-      studentName: `${student?.firstName} ${student?.lastName}`,
-      courseName: course?.name,
-      regDate: formData.regDate
+        const regData = await regRes.json();
+        const partData = await partRes.json();
+        const sessData = await sessRes.json();
+
+        setRegistrations(regData);
+        setParticipants(partData);
+        setSessions(sessData);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
     };
 
-    setRegistrations([...registrations, newReg]);
-    alert(`Ekorr-post skickad! ${student?.firstName} är nu registrerad.`);
+    fetchData();
+  }, []);
+
+  // 2. Skicka ny registrering till API
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     
-    setFormData({ email: '', instanceId: '', regDate: new Date().toISOString().split('T')[0] });
+    try {
+      const response = await fetch(`${BASE_URL}/api/registrations`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || "Registreringen misslyckades");
+      }
+
+      // Om det gick bra: Hämta listan på nytt för att se den nya raden
+      const updatedRegs = await fetch(`${BASE_URL}/api/registrations`).then(res => res.json());
+      setRegistrations(updatedRegs);
+      
+      alert(`Ekorr-post skickad! Registreringen är klar.`);
+      setFormData({ participantId: '', courseSessionId: '' }); // Töm formulär
+      
+    } catch (err) {
+      alert(`Hoppsan: ${err.message}`);
+    }
   };
+
+  if (loading) return <div className="p-10 text-center">Hämtar data från ekorr-förrådet... 🐿️</div>;
+  if (error) return <div className="p-10 text-red-500">Fel: {error}</div>;
 
   return (
     <div className="content-container">
       
-      {/* VÄNSTER: LISTA PÅ REGISTRERINGAR */}
+      {/* VÄNSTER: LISTA PÅ REGISTRERINGAR (Hämtas från DB) */}
       <div className="list-section">
         <h3>Genomförda registreringar</h3>
         <ul className="data-list">
-          {registrations.map((reg, index) => (
-            <li key={reg.registrationId || index} className="data-list-item">
+          {registrations.map((reg) => (
+            <li key={reg.id} className="data-list-item">
               <div>
-                <span className="item-name">{reg.studentName || "Okänd student"}</span>
+                <span className="item-name">{reg.participantName}</span>
                 <br />
-                <span className="item-info">{reg.courseName || "Okänd kurs"}</span>
+                <span className="item-info">{reg.courseName}</span>
               </div>
-              <span className="item-info">{reg.regDate || reg.registrationDate}</span>
+              <div style={{ textAlign: 'right' }}>
+                <span className="item-info" style={{ display: 'block' }}>{new Date(reg.created).toLocaleDateString()}</span>
+                <span className={`status-badge ${reg.status.toLowerCase()}`}>{reg.status}</span>
+              </div>
             </li>
           ))}
         </ul>
@@ -64,14 +113,13 @@ const Registrations = () => {
             <label>Välj student</label>
             <select 
               required 
-              value={formData.email}
-              onChange={(e) => setFormData({...formData, email: e.target.value})}
+              value={formData.participantId}
+              onChange={(e) => setFormData({...formData, participantId: e.target.value})}
             >
               <option value="">-- Välj student --</option>
-              {/* ÄNDRAT: Använder participants och email */}
-              {mockData.participants?.map(p => (
-                <option key={p.email} value={p.email}>
-                  {p.firstName} {p.lastName} ({p.email})
+              {participants.map(p => (
+                <option key={p.id} value={p.id}>
+                  {p.firstName} {p.lastName}
                 </option>
               ))}
             </select>
@@ -81,29 +129,16 @@ const Registrations = () => {
             <label>Välj kurstillfälle</label>
             <select 
               required 
-              value={formData.instanceId}
-              onChange={(e) => setFormData({...formData, instanceId: e.target.value})}
+              value={formData.courseSessionId}
+              onChange={(e) => setFormData({...formData, courseSessionId: e.target.value})}
             >
               <option value="">-- Välj tillfälle --</option>
-              {/* ÄNDRAT: Använder courseInstances */}
-              {mockData.courseInstances?.map(i => {
-                const course = mockData.courses.find(c => c.courseCode === i.courseCode);
-                return (
-                  <option key={i.instanceId} value={i.instanceId}>
-                    {course?.name} - {i.cityName} ({i.startDate})
-                  </option>
-                );
-              })}
+              {sessions.map(s => (
+                <option key={s.id} value={s.id}>
+                  {s.courseName} - {s.locationName} ({new Date(s.startDate).toLocaleDateString()})
+                </option>
+              ))}
             </select>
-          </div>
-
-          <div className="form-group">
-            <label>Datum</label>
-            <input 
-              type="date" 
-              value={formData.regDate}
-              onChange={(e) => setFormData({...formData, regDate: e.target.value})}
-            />
           </div>
 
           <button type="submit" className="btn-add-course">Registrera på kurs</button>
