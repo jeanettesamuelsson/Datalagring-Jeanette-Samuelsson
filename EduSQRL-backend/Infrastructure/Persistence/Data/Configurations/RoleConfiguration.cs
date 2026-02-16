@@ -10,17 +10,28 @@ public class RoleConfiguration : IEntityTypeConfiguration<RoleEntity>
     {
         builder.ToTable("Roles");
 
+        // set PK
+
         builder.HasKey(e => e.Id).HasName("PK_Roles_Id");
+
+        //set unique ID in database when added
+
+        builder.Property(e => e.Id)
+        .ValueGeneratedOnAdd()
+        .HasDefaultValueSql("(NEWSEQUENTIALID())", "DF_Role_Id");
+
+
         builder.Property(e => e.RoleName)
-                .IsRequired()
-                .HasMaxLength(20);
+        .IsRequired()
+        .HasMaxLength(20);
 
         builder.HasIndex(e => e.RoleName, "UQ_Roles_RoleName").IsUnique();
 
+     
         builder.Property(e => e.Concurrency)
-       .IsRowVersion()
-       .IsConcurrencyToken()
-       .IsRequired();
+        .IsRowVersion()
+        .IsConcurrencyToken()
+        .IsRequired();
 
         builder.Property(e => e.Created)
         .HasPrecision(0)
@@ -34,22 +45,14 @@ public class RoleConfiguration : IEntityTypeConfiguration<RoleEntity>
         .HasDefaultValueSql("(SYSUTCDATETIME())", "DF_Role_Modified")
         .ValueGeneratedOnAddOrUpdate();
 
-        //set M-M relation between Participant and Roles
+        // 1 - M Role -> Participants
 
-        builder.HasMany(r => r.Participants)
-        .WithMany(p => p.Roles)
-        .UsingEntity<Dictionary<string, object>>(
-        "ParticipantRole",
-        p => p.HasOne<ParticipantEntity>().WithMany().HasForeignKey("ParticipantId").OnDelete(DeleteBehavior.ClientSetNull),
-        r => r.HasOne<RoleEntity>().WithMany().HasForeignKey("RoleId").OnDelete(DeleteBehavior.ClientSetNull),
+        builder.HasMany(r => r.Participants) //one role has many participants
+            .WithOne(p => p.Role) // one role has many participants
+            .HasForeignKey(p => p.RoleId)
+            .OnDelete(DeleteBehavior.Restrict)
+            .HasConstraintName("FK_Participants_Roles");
 
-        // set junction table name and keys
-        j =>
-        {
-            j.HasKey("ParticipantId", "RoleId");
-            j.ToTable("ParticipantRoles");
-        }
-        );
 
         // seed data for Roles
 
@@ -59,7 +62,7 @@ public class RoleConfiguration : IEntityTypeConfiguration<RoleEntity>
                 Id = Guid.Parse("a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d"),
                 RoleName = "Student",
                 Created = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc)
-                
+
             },
             new RoleEntity
             {

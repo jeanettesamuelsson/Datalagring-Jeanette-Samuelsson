@@ -17,12 +17,7 @@ public class ParticipantEntityRepository(EduSqrlDbContext context) : EfcBaseRepo
         if (model.Id == Guid.Empty)
             throw new ArgumentException("Id must be set when adding a new participant.");
 
-        //get existing roles from database 
-
-        var existingRoles = await context.Roles
-        .Where(r => model.Roles.Contains(r.RoleName))
-        .ToListAsync(ct);
-
+        
         // add a ToEntity method to map from Model to Entity?
         var entity = new ParticipantEntity
         {
@@ -31,7 +26,7 @@ public class ParticipantEntityRepository(EduSqrlDbContext context) : EfcBaseRepo
             FirstName = model.FirstName,
             LastName = model.LastName,
             PhoneNumber = model.PhoneNumber.Value,
-            Roles = existingRoles,
+            RoleId = model.RoleId,
             Created = model.Created == default ? DateTime.UtcNow : model.Created,  //set time if not already set
             Concurrency = model.RowVersion
         };
@@ -47,7 +42,8 @@ public class ParticipantEntityRepository(EduSqrlDbContext context) : EfcBaseRepo
         entity.LastName,
         entity.Email,
         new PhoneNumber(entity.PhoneNumber),
-        entity.Roles.Select(r => r.RoleName).ToList(),
+        entity.RoleId,
+        entity.Role.RoleName,
         entity.Created,
         entity.Concurrency
         
@@ -58,7 +54,7 @@ public class ParticipantEntityRepository(EduSqrlDbContext context) : EfcBaseRepo
         // get the existing entity from database and include roles from ParticipantRoles
 
         var entity = await Set
-            .Include(x => x.Roles)
+            .Include(x => x.Role)
             .SingleOrDefaultAsync(x => x.Id == model.Id, ct)
             ?? throw new ArgumentException($"Participant with id {model.Id} not found.");
 
@@ -71,9 +67,7 @@ public class ParticipantEntityRepository(EduSqrlDbContext context) : EfcBaseRepo
         entity.LastName = model.LastName;
         entity.Email = model.Email;
         entity.PhoneNumber = model.PhoneNumber.Value;
-        entity.Roles = await context.Roles
-            .Where(r => model.Roles.Contains(r.RoleName))
-            .ToListAsync(ct);
+        entity.RoleId = model.RoleId;
         entity.Created = model.Created;
         entity.Modified = DateTime.UtcNow;
 
@@ -91,7 +85,7 @@ public class ParticipantEntityRepository(EduSqrlDbContext context) : EfcBaseRepo
     public override async Task<Participant?> GetByIdAsync(Guid id, CancellationToken ct = default)
     {
         var entity = await Set
-            .Include(p => p.Roles) 
+            .Include(p => p.Role) 
             .AsNoTracking()
             .SingleOrDefaultAsync(x => x.Id == id, ct);
 
@@ -102,7 +96,7 @@ public class ParticipantEntityRepository(EduSqrlDbContext context) : EfcBaseRepo
     public override async Task<IReadOnlyList<Participant>> ListAsync(CancellationToken ct = default)
     {
         var entities = await Set
-            .Include(p => p.Roles) 
+            .Include(p => p.Role) 
             .AsNoTracking()
             .ToListAsync(ct);
 

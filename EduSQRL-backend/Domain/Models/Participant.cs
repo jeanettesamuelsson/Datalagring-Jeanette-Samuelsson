@@ -8,7 +8,8 @@ public sealed record Participant(
     string LastName,
     string Email,
     PhoneNumber PhoneNumber,
-    List<string> Roles,
+    Guid RoleId,
+    string RoleName,
     DateTime Created, 
     byte [] RowVersion
     

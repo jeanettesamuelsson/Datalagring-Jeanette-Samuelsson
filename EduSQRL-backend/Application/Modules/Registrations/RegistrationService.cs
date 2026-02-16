@@ -1,38 +1,38 @@
-﻿
-
-using Application.Abstractions.Persistence;
+﻿using Application.Abstractions.Persistence;
+using Application.Modules.Participants;
 using Application.Modules.Participants.Inputs;
 using Application.Modules.Participants.Outputs;
-using Domain.Participants.ValueObjects;
+using Application.Modules.Registrations.Output;
 using Application.Modules.Roles;
 using Domain.Models;
+using Domain.Participants.ValueObjects;
+using System;
+using System.Collections.Generic;
+using System.Text;
 
+namespace Application.Modules.Registrations;
 
-namespace Application.Modules.Participants;
-
-public class ParticipantService
+public class RegistrationService
     (
-    IParticipantRepository participants,
-    IUnitOfWork uow,
-    IRoleService roleService
-
-    ) : IParticipantService
+    IRegistrationRepository registrations,
+    IUnitOfWork uow
+  
+    ) : IRegistrationService
 
 
 {
 
-    private readonly IRoleService _roleService = roleService;
 
-    private static ParticipantOutput ToOutputModel(Participant p) => new(
-        p.Id,
-        p.FirstName,
-        p.LastName,
-        p.Email,
-        p.PhoneNumber.Value,
-        p.RoleId,
-        p.RoleName,
-        p.Created,
-        p.RowVersion
+    private static RegistrationOutput ToOutputModel(Registration r) => new(
+
+        r.Id,
+        r.ParticipantId,
+        r.CourseSessionId,
+        r.ParticipantName,
+        r.CourseName,
+        r.Created,
+        r.Status.ToString(),
+        r.RowVersion
 
         );
 
@@ -43,7 +43,7 @@ public class ParticipantService
         var phoneNumber = new PhoneNumber(input.PhoneNumber);
 
         if (await participants.EmailAlreadyExistsAsync(email.Value, ct))
-           throw new ArgumentException("Email already exists");
+            throw new ArgumentException("Email already exists");
 
         //validate roles input
 
@@ -81,7 +81,7 @@ public class ParticipantService
     // read (all and by id)
     public async Task<IReadOnlyList<ParticipantOutput>> GetAllParticipantsAsync(CancellationToken ct = default)
     {
-       var list = await participants.ListAsync(ct);
+        var list = await participants.ListAsync(ct);
 
         return [.. list.Select(ToOutputModel)];
     }
@@ -97,7 +97,7 @@ public class ParticipantService
     //update
     public async Task<ParticipantOutput?> UpdateAsync(UpdateParticipantInput input, CancellationToken ct)
     {
-        
+
         var participant = await participants.GetByIdAsync(input.Id, ct);
         if (participant is null)
             return null;
@@ -131,7 +131,7 @@ public class ParticipantService
         var updated = await participants.GetByIdAsync(input.Id, ct);
         return updated is null ? null : ToOutputModel(updated);
 
-       
+
     }
 
     //delete
@@ -146,8 +146,4 @@ public class ParticipantService
 
         await uow.SaveChangesAsync(ct);
     }
-
-
-}
-
 

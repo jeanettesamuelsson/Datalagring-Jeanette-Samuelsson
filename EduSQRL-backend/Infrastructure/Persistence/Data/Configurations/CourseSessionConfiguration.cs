@@ -10,25 +10,30 @@ public class CourseSessionConfiguration : IEntityTypeConfiguration<CourseSession
     {
         builder.ToTable("CourseSessions");
 
+        // PK
+
         builder.HasKey(e => e.Id).HasName("PK_CourseSessions_Id");
 
+        // set unique ID in database when added
+
         builder.Property(e => e.Id)
-            .HasDefaultValueSql("(NEWSEQUENTIALID())", "DF_CourseSession_Id");
+        .ValueGeneratedOnAdd()
+        .HasDefaultValueSql("(NEWSEQUENTIALID())", "DF_CourseSession_Id");
 
         builder.Property(e => e.StartDate)
-            .IsRequired();
+        .IsRequired();
 
         builder.Property(e => e.EndDate)
-            .IsRequired();
+        .IsRequired();
 
         builder.Property(e => e.Capacity)
-            .IsRequired();
+        .IsRequired();
 
 
         builder.Property(e => e.Concurrency)
-         .IsRowVersion()
-         .IsConcurrencyToken()
-         .IsRequired();
+        .IsRowVersion()
+        .IsConcurrencyToken()
+        .IsRequired();
 
         builder.Property(e => e.Created)
         .HasPrecision(0)
@@ -43,19 +48,19 @@ public class CourseSessionConfiguration : IEntityTypeConfiguration<CourseSession
         .ValueGeneratedOnAddOrUpdate();
 
 
-        // relation to
+        // relationships
 
         //Course
         builder.HasOne(s => s.Course)
        .WithMany(c => c.CourseSessions)
        .HasForeignKey(s => s.CourseId)
-       .OnDelete(DeleteBehavior.Cascade);
+       .OnDelete(DeleteBehavior.Cascade); // will delete sessions connected to the course
 
         //Location
         builder.HasOne(s => s.Location)
         .WithMany(l => l.CourseSessions) 
         .HasForeignKey(s => s.LocationId)
-        .OnDelete(DeleteBehavior.Restrict);
+        .OnDelete(DeleteBehavior.Cascade); // will delete sessions connected to the location
 
 
     }

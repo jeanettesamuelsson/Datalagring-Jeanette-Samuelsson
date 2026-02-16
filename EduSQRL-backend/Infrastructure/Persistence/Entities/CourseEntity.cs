@@ -11,5 +11,7 @@ public class CourseEntity : IEntity<Guid>
     public byte[] Concurrency { get; set; } = null!;
     public DateTime Created { get; set; }
     public DateTime Modified { get; set; }
+
+    // navigation property
     public ICollection<CourseSessionEntity> CourseSessions { get; set; } = [];
 }

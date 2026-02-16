@@ -8,7 +8,8 @@ public record ParticipantOutput
     string LastName,
     string Email,
     string PhoneNumber,
-    List<string> Roles,
+    Guid RoleId,
+    string RoleName,
     DateTime Created,
     byte[] RowVersion
 

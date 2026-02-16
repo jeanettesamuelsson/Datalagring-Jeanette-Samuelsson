@@ -11,8 +11,9 @@ public sealed record RegistrationOutput(
     Guid ParticipantId,
     Guid CourseSessionId,
     string ParticipantName, 
-    string CourseName,      
-    RegistrationStatus Status,
+    string CourseName,     
+    DateTime Created,
+    string Status,
     byte[] RowVersion
 
 

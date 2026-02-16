@@ -1,6 +1,5 @@
 ﻿using Application.Modules.Courses;
 using Domain.Models;
-using Domain.Participants.ValueObjects;
 using Infrastructure.Persistence.Data;
 using Infrastructure.Persistence.Entities;
 using Microsoft.EntityFrameworkCore;

@@ -7,6 +7,6 @@ public record CreateParticipantInput
     string LastName,
     string Email,
     string PhoneNumber,
-    List<string> Roles
+    Guid RoleId
 
 );

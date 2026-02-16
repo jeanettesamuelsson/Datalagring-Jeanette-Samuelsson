@@ -12,7 +12,12 @@ public class ParticipantEntity : IEntity<Guid>
     public byte[] Concurrency { get; set; } = null!;
     public DateTime Created { get; set; }
     public DateTime Modified { get; set; }
-    public ICollection<RoleEntity> Roles { get; set; } = [];
+    public Guid RoleId { get; set; } //FK
+
+    // navigation properties
+    public RoleEntity Role { get; set; } = null!; 
+
+    public ICollection<RegistrationEntity> Registrations { get; set; } = [];
 
 
 }

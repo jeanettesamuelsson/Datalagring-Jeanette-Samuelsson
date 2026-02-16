@@ -10,6 +10,7 @@ public class LocationEntity : IEntity<Guid>
     public DateTime Created { get; set; }
     public DateTime Modified { get; set; }
 
+    // navigation properties
     public virtual ICollection<CourseSessionEntity> CourseSessions { get; set; } = [];
 
 }

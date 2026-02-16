@@ -3,7 +3,7 @@ using Domain.Models;
 
 namespace Infrastructure.Persistence.Entities;
 
-internal class RegistrationEntity : IEntity<Guid>
+public class RegistrationEntity : IEntity<Guid>
 {
     public Guid Id { get; set; }
 
@@ -11,10 +11,10 @@ internal class RegistrationEntity : IEntity<Guid>
     public DateTime Created { get; set; }
     public DateTime Modified { get; set; }
     public RegistrationStatus Status { get; set; }
+    public Guid ParticipantId { get; set; } //FK
+    public Guid CourseSessionId { get; set; } //FK
 
-    //connection to participant and course session
-    public Guid ParticipantId { get; set; } 
-    public Guid CourseSessionId { get; set; } 
+    // navigation properties
     public ParticipantEntity Participant { get; set; } = null!;
     public CourseSessionEntity CourseSession { get; set; } = null!;
 }

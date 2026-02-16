@@ -12,6 +12,6 @@ public record UpdateParticipantInput
     string LastName,
     string Email,
     string PhoneNumber,
-    List<string> Roles,
+    Guid RoleId,
     byte[] RowVersion
 );

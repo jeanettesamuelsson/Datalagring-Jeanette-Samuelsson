@@ -12,34 +12,36 @@ public class LocationConfiguration : IEntityTypeConfiguration<LocationEntity>
     {
         builder.ToTable("Locations");
 
+        // PK
+
         builder.HasKey(e => e.Id).HasName("PK_Locations_Id");
 
-        // properties
-        
+        // set unique ID in database when added
 
         builder.Property(e => e.Id)
-            .HasDefaultValueSql("(NEWSEQUENTIALID())", "DF_Location_Id");
+        .ValueGeneratedOnAdd()
+        .HasDefaultValueSql("(NEWSEQUENTIALID())", "DF_Location_Id");
 
         builder.Property(e => e.Name)
-            .HasMaxLength(100)
-            .IsRequired();
+        .HasMaxLength(100)
+        .IsRequired();
 
         builder.Property(e => e.Concurrency)
-            .IsRowVersion()
-            .IsConcurrencyToken()
-            .IsRequired();
+        .IsRowVersion()
+        .IsConcurrencyToken()
+        .IsRequired();
 
         builder.Property(e => e.Created)
-            .HasPrecision(0)
-            .IsRequired()
-            .HasDefaultValueSql("(SYSUTCDATETIME())", "DF_Locations_Created")
-            .ValueGeneratedOnAdd();
+        .HasPrecision(0)
+        .IsRequired()
+        .HasDefaultValueSql("(SYSUTCDATETIME())", "DF_Locations_Created")
+        .ValueGeneratedOnAdd();
 
         builder.Property(e => e.Modified)
-            .HasPrecision(0)
-            .IsRequired()
-            .HasDefaultValueSql("(SYSUTCDATETIME())", "DF_Locations_Modified")
-            .ValueGeneratedOnAddOrUpdate();
+        .HasPrecision(0)
+        .IsRequired()
+        .HasDefaultValueSql("(SYSUTCDATETIME())", "DF_Locations_Modified")
+        .ValueGeneratedOnAddOrUpdate();
 
     }
 }

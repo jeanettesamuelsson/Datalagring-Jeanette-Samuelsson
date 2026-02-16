@@ -7,6 +7,7 @@ using Application.Modules.Locations;
 using Application.Modules.Locations.Input;
 using Application.Modules.Participants;
 using Application.Modules.Participants.Inputs;
+using Application.Modules.Registrations.Input;
 using Application.Modules.Roles;
 using Infrastructure.Persistence.Data;
 using Infrastructure.Persistence.Repositories;
@@ -17,6 +18,7 @@ using Presentation.Dtos;
 using Presentation.Dtos.Course;
 using Presentation.Dtos.CourseSession;
 using Presentation.Dtos.Location;
+using Presentation.Dtos.Registration;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -59,6 +61,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
 app.UseCors(x => x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 
 var list = new List<ParticipantDto>(){};
@@ -87,7 +90,7 @@ participantGroup.MapPost("/", async (CreateParticipantRequest request, IParticip
 {
     //map (create) a dto from user input 
 
-    var input = new CreateParticipantInput(request.FirstName, request.LastName, request.Email, request.PhoneNumber, request.Roles);
+    var input = new CreateParticipantInput(request.FirstName, request.LastName, request.Email, request.PhoneNumber, request.RoleId);
 
     var id = await service.CreateAsync(input, ct);
 
@@ -114,7 +117,7 @@ participantGroup.MapGet("/{id:guid}", async (Guid id, IParticipantService servic
 
 participantGroup.MapPut("/{id:guid}", async (Guid id, [FromBody] UpdateParticipantRequest request, IParticipantService service, CancellationToken ct) =>
 {
-    var input = new UpdateParticipantInput(request.Id, request.FirstName, request.LastName, request.Email, request.PhoneNumber, request.Roles, request.RowVersion);
+    var input = new UpdateParticipantInput(request.Id, request.FirstName, request.LastName, request.Email, request.PhoneNumber, request.RoleId, request.RowVersion);
 
    
         var result = await service.UpdateAsync(input, ct);
@@ -291,6 +294,50 @@ courseSessionGroup.MapDelete("/{id:guid}", async (Guid id, [FromHeader(Name = "I
    await service.DeleteAsync(id, rowVersion, ct);
    return Results.NoContent();
    
+});
+
+#endregion
+
+#region registration endpoints
+
+var registrationGroup = app.MapGroup("/api/registrations").WithTags("Registrations");
+
+registrationGroup.MapPost("/", async (CreateRegistrationRequest request, IRegistrationService service, CancellationToken ct) =>
+{
+    
+    var input = new CreateRegistrationInput(request.ParticipantId, request.CourseSessionId);
+    var id = await service.CreateAsync(input, ct);
+
+    return Results.Created($"/api/registrations/{id}", id);
+});
+
+
+registrationGroup.MapGet("/{id:guid}", async (Guid id, IRegistrationService service, CancellationToken ct) =>
+{
+    var result = await service.GetByIdAsync(id, ct);
+    return result is not null ? Results.Ok(result) : Results.NotFound();
+});
+
+
+registrationGroup.MapGet("/session/{sessionId:guid}", async (Guid sessionId, IRegistrationService service, CancellationToken ct) =>
+{
+    var list = await service.GetBySessionIdAsync(sessionId, ct);
+    return Results.Ok(list);
+});
+
+// patch because only update status
+
+registrationGroup.MapPatch("/{id:guid}/status", async (Guid id, UpdateRegistrationStatusRequest request, IRegistrationService service, CancellationToken ct) =>
+{
+    var result = await service.UpdateStatusAsync(id, request.Status, request.RowVersion, ct);
+    return result is not null ? Results.Ok(result) : Results.NotFound();
+});
+
+
+registrationGroup.MapDelete("/{id:guid}", async (Guid id, [FromBody] byte[] rowVersion, IRegistrationService service, CancellationToken ct) =>
+{
+    await service.DeleteAsync(id, rowVersion, ct);
+    return Results.NoContent();
 });
 
 #endregion

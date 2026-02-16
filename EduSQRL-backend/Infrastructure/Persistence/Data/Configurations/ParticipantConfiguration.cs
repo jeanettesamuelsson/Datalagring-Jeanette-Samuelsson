@@ -6,20 +6,22 @@ namespace Infrastructure.Persistence.Data.Configurations;
 
 public class ParticipantConfiguration : IEntityTypeConfiguration<ParticipantEntity>
 {
-    public void Configure(EntityTypeBuilder<ParticipantEntity> builder
-        )
+    public void Configure(EntityTypeBuilder<ParticipantEntity> builder)
     {
         builder.ToTable("Participants");
 
+        // set PK
+
         builder.HasKey(e => e.Id).HasName("PK_Participants_Id");
 
-        //properties
-
-        //set unique ID in database when added
+        
+        // set unique ID in database when added
 
         builder.Property(e => e.Id)
         .ValueGeneratedOnAdd()
         .HasDefaultValueSql("(NEWSEQUENTIALID())", "DF_Participant_Id");
+
+        // other properties
 
         builder.Property(e => e.FirstName)
         .HasMaxLength(50)
@@ -55,8 +57,13 @@ public class ParticipantConfiguration : IEntityTypeConfiguration<ParticipantEnti
         .HasDefaultValueSql("(SYSUTCDATETIME())", "DF_Participants_Modified")
         .ValueGeneratedOnAddOrUpdate();
 
+        // set unique index for email
+      
+        builder.HasIndex(e => e.Email, "UQ_Participants_Email")
+            .IsUnique();
 
-        builder.HasIndex(e => e.Email, "UQ_Participants_Email").IsUnique();
+        // check constraint 
+
         builder.ToTable(tb => tb.HasCheckConstraint("CK_Participants_Email_NotEmpty", "LTRIM(RTRIM([Email])) <> ''"));
 
     }

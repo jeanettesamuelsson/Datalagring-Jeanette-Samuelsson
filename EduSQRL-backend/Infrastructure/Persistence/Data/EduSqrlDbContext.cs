@@ -10,8 +10,8 @@ public sealed class EduSqrlDbContext(DbContextOptions<EduSqrlDbContext> options)
     public DbSet<RoleEntity> Roles => Set<RoleEntity>();
     public DbSet<CourseEntity> Courses => Set<CourseEntity>();
     public DbSet<CourseSessionEntity> CourseSessions => Set<CourseSessionEntity>();
-
     public DbSet<LocationEntity> Locations => Set<LocationEntity>();
+    public DbSet<RegistrationEntity> Registrations => Set<RegistrationEntity>();
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
