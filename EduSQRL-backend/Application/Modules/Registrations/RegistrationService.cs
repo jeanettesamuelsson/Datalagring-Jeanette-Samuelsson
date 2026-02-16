@@ -1,14 +1,8 @@
 ﻿using Application.Abstractions.Persistence;
-using Application.Modules.Participants;
-using Application.Modules.Participants.Inputs;
-using Application.Modules.Participants.Outputs;
+using Application.Modules.Registrations.Input;
 using Application.Modules.Registrations.Output;
-using Application.Modules.Roles;
+
 using Domain.Models;
-using Domain.Participants.ValueObjects;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Application.Modules.Registrations;
 
@@ -16,12 +10,10 @@ public class RegistrationService
     (
     IRegistrationRepository registrations,
     IUnitOfWork uow
-  
+
     ) : IRegistrationService
 
-
 {
-
 
     private static RegistrationOutput ToOutputModel(Registration r) => new(
 
@@ -37,113 +29,94 @@ public class RegistrationService
         );
 
     // create 
-    public async Task<Guid> CreateAsync(CreateParticipantInput input, CancellationToken ct)
+    public async Task<Guid> CreateAsync(CreateRegistrationInput input, CancellationToken ct)
     {
-        var email = new Email(input.Email);
-        var phoneNumber = new PhoneNumber(input.PhoneNumber);
 
-        if (await participants.EmailAlreadyExistsAsync(email.Value, ct))
-            throw new ArgumentException("Email already exists");
-
-        //validate roles input
-
-        var roles = await _roleService.GetRolesAsync(ct);
-
-        if (!roles.Any(r => r.Id == input.RoleId))
-            throw new ArgumentException($"Invalid RoleId: {input.RoleId}");
+        if (await registrations.AlreadyExistsAsync(input.ParticipantId, input.CourseSessionId, ct))
+            throw new ArgumentException("Already Registered!");
 
 
+        var registrationId = Guid.NewGuid();
 
-        var participantId = Guid.NewGuid();
-        var dateNow = DateTime.UtcNow;
+        var registration = new Registration(
 
-        var participant = new Participant(
-            Id: participantId,
-            FirstName: input.FirstName,
-            LastName: input.LastName,
-            Email: email.Value,
-            PhoneNumber: phoneNumber,
-            RoleId: input.RoleId,
-            RoleName: "",
-            Created: dateNow,
+            Id: registrationId,
+            ParticipantId: input.ParticipantId,
+            ParticipantName: "",
+            CourseSessionId: input.CourseSessionId,
+            CourseName: "",
+            Status: RegistrationStatus.Pending,
+            Created: DateTime.UtcNow,
             RowVersion: []
 
             );
 
-        await participants.AddAsync(participant);
+        await registrations.AddAsync(registration);
 
         await uow.SaveChangesAsync(ct);
 
-        return participantId;
+        return registrationId;
 
     }
 
     // read (all and by id)
-    public async Task<IReadOnlyList<ParticipantOutput>> GetAllParticipantsAsync(CancellationToken ct = default)
+    public async Task<IReadOnlyList<RegistrationOutput>> GetAllAsync(CancellationToken ct = default)
     {
-        var list = await participants.ListAsync(ct);
+        var list = await registrations.ListAsync(ct);
 
         return [.. list.Select(ToOutputModel)];
     }
 
-    public async Task<ParticipantOutput?> GetByIdAsync(Guid participantId, CancellationToken ct)
+    public async Task<RegistrationOutput?> GetByIdAsync(Guid registrationId, CancellationToken ct)
     {
-        var participant = await participants.GetByIdAsync(participantId, ct);
+        var registration = await registrations.GetByIdAsync(registrationId, ct);
 
-        return participant is null ? null : ToOutputModel(participant);
+        return registration is null ? null : ToOutputModel(registration);
     }
 
 
     //update
-    public async Task<ParticipantOutput?> UpdateAsync(UpdateParticipantInput input, CancellationToken ct)
+    public async Task<RegistrationOutput?> UpdateAsync(UpdateRegistrationInput input, CancellationToken ct)
     {
 
-        var participant = await participants.GetByIdAsync(input.Id, ct);
-        if (participant is null)
+        var registration = await registrations.GetByIdAsync(input.Id, ct);
+        if (registration is null)
             return null;
 
-        //validate roles input
 
-        var roles = await _roleService.GetRolesAsync(ct);
-
-        if (!roles.Any(r => r.Id == input.RoleId))
-            throw new ArgumentException($"Invalid RoleId: {input.RoleId}");
-
-        var phoneNumber = new PhoneNumber(input.PhoneNumber);
-
-        var updatedParticipant = participant with
+        var updatedRegistration = registration with
         {
-            FirstName = input.FirstName,
-            LastName = input.LastName,
-            Email = input.Email,
-            PhoneNumber = phoneNumber,
-            RoleId = input.RoleId,
+            Status = input.Status,
             RowVersion = input.RowVersion
+
         };
 
         // update and save changes
 
-        await participants.UpdateAsync(updatedParticipant, ct);
+        await registrations.UpdateAsync(updatedRegistration, ct);
         await uow.SaveChangesAsync(ct);
 
-        // return the updated participant
+        // return the updated registration
 
-        var updated = await participants.GetByIdAsync(input.Id, ct);
+        var updated = await registrations.GetByIdAsync(input.Id, ct);
         return updated is null ? null : ToOutputModel(updated);
 
 
     }
 
     //delete
-    public async Task DeleteAsync(Guid participantId, byte[] rowVersion, CancellationToken ct = default)
+    public async Task DeleteAsync(Guid registrationId, byte[] rowVersion, CancellationToken ct = default)
     {
-        var participant = await participants.GetByIdAsync(participantId, ct)
-                       ?? throw new ArgumentException("Participant not found");
+        var registration = await registrations.GetByIdAsync(registrationId, ct)
+                       ?? throw new ArgumentException("Registration not found");
 
-        await participants.UpdateAsync(participant with { RowVersion = rowVersion }, ct);
+        await registrations.UpdateAsync(registration with { RowVersion = rowVersion }, ct);
 
-        await participants.DeleteAsync(participantId, ct);
+        await registrations.DeleteAsync(registrationId, ct);
 
         await uow.SaveChangesAsync(ct);
     }
+
+    
+}
 

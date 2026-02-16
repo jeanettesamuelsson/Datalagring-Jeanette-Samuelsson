@@ -4,8 +4,8 @@ namespace Domain.Models;
 
 public enum RegistrationStatus
 {
-
-    Registered = 1,   
-    Waitlisted = 2,  // Registered on waitlist if course session is full
-    Cancelled = 3     
+    Pending = 1,
+    Registered = 2,   
+    Waitlisted = 3,  // Registered on waitlist if course session is full
+    Cancelled = 4    
 }
