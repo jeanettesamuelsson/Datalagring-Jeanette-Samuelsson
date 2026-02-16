@@ -7,6 +7,7 @@ using Application.Modules.Locations;
 using Application.Modules.Locations.Input;
 using Application.Modules.Participants;
 using Application.Modules.Participants.Inputs;
+using Application.Modules.Registrations;
 using Application.Modules.Registrations.Input;
 using Application.Modules.Roles;
 using Infrastructure.Persistence.Data;
@@ -38,6 +39,12 @@ builder.Services.AddScoped<ICourseService, CourseService>();
 
 builder.Services.AddScoped<ILocationRepository, LocationRepository>();
 builder.Services.AddScoped<ILocationService, LocationService>();
+
+builder.Services.AddScoped<ICourseSessionRepository, CourseSessionRepository>();
+builder.Services.AddScoped<ICourseSessionService, CourseSessionService>();
+
+builder.Services.AddScoped<IRegistrationRepository, RegistrationRepository>();
+builder.Services.AddScoped<IRegistrationService, RegistrationService>();
 
 
 builder.Services.AddCors();
@@ -302,6 +309,8 @@ courseSessionGroup.MapDelete("/{id:guid}", async (Guid id, [FromHeader(Name = "I
 
 var registrationGroup = app.MapGroup("/api/registrations").WithTags("Registrations");
 
+// create
+
 registrationGroup.MapPost("/", async (CreateRegistrationRequest request, IRegistrationService service, CancellationToken ct) =>
 {
     
@@ -311,6 +320,7 @@ registrationGroup.MapPost("/", async (CreateRegistrationRequest request, IRegist
     return Results.Created($"/api/registrations/{id}", id);
 });
 
+// read by id 
 
 registrationGroup.MapGet("/{id:guid}", async (Guid id, IRegistrationService service, CancellationToken ct) =>
 {
@@ -318,19 +328,26 @@ registrationGroup.MapGet("/{id:guid}", async (Guid id, IRegistrationService serv
     return result is not null ? Results.Ok(result) : Results.NotFound();
 });
 
+// read all 
 
-registrationGroup.MapGet("/session/{sessionId:guid}", async (Guid sessionId, IRegistrationService service, CancellationToken ct) =>
+registrationGroup.MapGet("/", async (IRegistrationService service, CancellationToken ct) =>
 {
-    var list = await service.GetBySessionIdAsync(sessionId, ct);
-    return Results.Ok(list);
+    var registrations = await service.GetAllAsync(ct);
+    return Results.Ok(registrations);
+
 });
 
-// patch because only update status
+//update
 
-registrationGroup.MapPatch("/{id:guid}/status", async (Guid id, UpdateRegistrationStatusRequest request, IRegistrationService service, CancellationToken ct) =>
+registrationGroup.MapPut("/{id:guid}", async (Guid id, [FromBody] UpdateRegistrationRequest request, IRegistrationService service, CancellationToken ct) =>
 {
-    var result = await service.UpdateStatusAsync(id, request.Status, request.RowVersion, ct);
+    var input = new UpdateRegistrationInput(request.Id, request.Status, request.RowVersion);
+
+
+    var result = await service.UpdateAsync(input, ct);
     return result is not null ? Results.Ok(result) : Results.NotFound();
+
+
 });
 
 

@@ -89,7 +89,7 @@ public class RegistrationRepository(EduSqrlDbContext context) : EfcBaseRepositor
     }
 
     // method to check if participant is already registered
-    public async Task<bool> ExistsAsync(Guid participantId, Guid courseSessionId, CancellationToken ct = default)
+    public async Task<bool> AlreadyExistsAsync(Guid participantId, Guid courseSessionId, CancellationToken ct = default)
     {
 
         return await Set.AnyAsync(r =>
