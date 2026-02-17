@@ -20,12 +20,14 @@ using Presentation.Dtos.Course;
 using Presentation.Dtos.CourseSession;
 using Presentation.Dtos.Location;
 using Presentation.Dtos.Registration;
+using Presentation.Middleware;
 
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddOpenApi();
 
+// services and repos
 
 builder.Services.AddScoped<IParticipantRepository, ParticipantEntityRepository>();
 builder.Services.AddScoped<IUnitOfWork, EfcUnitOfWork>();
@@ -46,6 +48,11 @@ builder.Services.AddScoped<ICourseSessionService, CourseSessionService>();
 builder.Services.AddScoped<IRegistrationRepository, RegistrationRepository>();
 builder.Services.AddScoped<IRegistrationService, RegistrationService>();
 
+// service for global exception handler
+
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
+
 // database configuration
 
 builder.Services.AddDbContext<EduSqrlDbContext>(options => options.UseSqlServer(
@@ -58,6 +65,8 @@ builder.Services.AddCors();  //allow react to communicate with apip
 
 
 var app = builder.Build();
+
+app.UseExceptionHandler();
 
 app.MapOpenApi();
 
