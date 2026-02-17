@@ -8,6 +8,8 @@ public sealed record CreateCourseSessionInput(
 
     Guid CourseId,
     Guid LocationId,
+    string CourseName,
+    string LocationName, 
     DateTime StartDate,
     DateTime EndDate,
     int Capacity

@@ -71,7 +71,7 @@ const Instances = () => {
       const updatedSessions = await fetch(`${BASE_URL}/courseSessions`).then(res => res.json());
       setSessions(updatedSessions);
       
-      alert(`Nytt kurstillfälle har skapats i ekorr-kalendern! 🐿️`);
+      alert(`Nytt kurstillfälle har skapats! 🐿️`);
       setFormData({ courseId: '', locationId: '', startDate: '', endDate: '', capacity: '' });
       
     } catch (err) {
@@ -79,7 +79,7 @@ const Instances = () => {
     }
   };
 
-  if (loading) return <div className="p-10 text-center">Planerar rutter... 🐿️</div>;
+  if (loading) return <div className="p-10 text-center">Planerar ... 🐿️</div>;
   if (error) return <div className="p-10 text-red-500">Fel: {error}</div>;
 
   return (

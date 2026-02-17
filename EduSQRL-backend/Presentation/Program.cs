@@ -46,13 +46,16 @@ builder.Services.AddScoped<ICourseSessionService, CourseSessionService>();
 builder.Services.AddScoped<IRegistrationRepository, RegistrationRepository>();
 builder.Services.AddScoped<IRegistrationService, RegistrationService>();
 
-
-builder.Services.AddCors();
+// database configuration
 
 builder.Services.AddDbContext<EduSqrlDbContext>(options => options.UseSqlServer(
     builder.Configuration.GetConnectionString("EduSqrlDatabase"),
     sql => sql.MigrationsAssembly(typeof(EduSqrlDbContext).Assembly.FullName)
 ));
+
+builder.Services.AddCors();  //allow react to communicate with apip
+
+
 
 var app = builder.Build();
 
@@ -262,7 +265,7 @@ var courseSessionGroup = app.MapGroup("/api/courseSessions").WithTags("CourseSes
 courseSessionGroup.MapPost("/", async (CreateCourseSessionRequest request, ICourseSessionService service, CancellationToken ct) =>
 {
 
-    var input = new CreateCourseSessionInput(request.CourseId, request.LocationId, request.StartDate, request.EndDate, request.Capacity);
+    var input = new CreateCourseSessionInput(request.CourseId, request.LocationId, request.CourseName, request.LocationName, request.StartDate, request.EndDate, request.Capacity);
     var id = await service.CreateAsync(input, ct);
     return Results.Created($"/api/courseSessions/{id}", id);
  
@@ -351,8 +354,11 @@ registrationGroup.MapPut("/{id:guid}", async (Guid id, [FromBody] UpdateRegistra
 });
 
 
-registrationGroup.MapDelete("/{id:guid}", async (Guid id, [FromBody] byte[] rowVersion, IRegistrationService service, CancellationToken ct) =>
+registrationGroup.MapDelete("/{id:guid}", async (Guid id, [FromHeader(Name = "If-Match")] string rowVersionStr, IRegistrationService service, CancellationToken ct) =>
 {
+    // convert string to byte array
+    var rowVersion = Convert.FromBase64String(rowVersionStr);
+
     await service.DeleteAsync(id, rowVersion, ct);
     return Results.NoContent();
 });

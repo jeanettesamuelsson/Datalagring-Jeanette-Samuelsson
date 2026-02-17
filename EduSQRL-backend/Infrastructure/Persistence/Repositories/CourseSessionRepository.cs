@@ -35,6 +35,8 @@ public class CourseSessionRepository(EduSqrlDbContext context) : EfcBaseReposito
             entity.Id,
             entity.CourseId,
             entity.LocationId,
+            entity.Course.CourseName,
+            entity.Location.Name, 
             entity.StartDate,
             entity.EndDate,
             entity.Capacity,
