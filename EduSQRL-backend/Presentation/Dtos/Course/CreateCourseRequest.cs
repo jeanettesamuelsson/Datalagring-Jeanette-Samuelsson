@@ -2,8 +2,8 @@
 
 public sealed record CreateCourseRequest(
 
-    string CourseCode,
     string CourseName,
+    string CourseCode,
     string Description
 
 );

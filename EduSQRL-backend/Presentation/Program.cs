@@ -166,7 +166,7 @@ var courseGroup = app.MapGroup("/api/courses").WithTags("Courses");
 courseGroup.MapPost("/", async (CreateCourseRequest request, ICourseService service, CancellationToken ct) =>
 {
     
-        var input = new CreateCourseInput(request.CourseCode, request.CourseName, request.Description);
+        var input = new CreateCourseInput(request.CourseName, request.CourseCode, request.Description);
         var id = await service.CreateAsync(input, ct);
         return Results.Created($"/api/courses/{id}", id);
     
@@ -190,7 +190,7 @@ courseGroup.MapPut("/{id:guid}", async (Guid id, [FromBody] UpdateCourseRequest 
     if (id != request.Id) return Results.BadRequest("ID mismatch.");
 
     
-        var input = new UpdateCourseInput(request.Id, request.CourseCode, request.CourseName, request.Description, request.RowVersion);
+        var input = new UpdateCourseInput(request.Id, request.CourseName, request.CourseCode, request.Description, request.RowVersion);
         var result = await service.UpdateAsync(input, ct);
         return result is not null ? Results.Ok(result) : Results.NotFound();
     

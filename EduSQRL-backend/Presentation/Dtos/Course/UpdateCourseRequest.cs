@@ -3,8 +3,8 @@
 public sealed record UpdateCourseRequest( 
 
     Guid Id,
-    string CourseCode,
     string CourseName,
+    string CourseCode,
     string Description,
     byte[] RowVersion
 

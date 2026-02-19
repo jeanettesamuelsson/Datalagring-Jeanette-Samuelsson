@@ -3,8 +3,8 @@
 public sealed record CourseDto(
 
     Guid Id,
-    string CourseCode,
     string CourseName,
+    string CourseCode,
     string Description,
     byte[] RowVersion
 

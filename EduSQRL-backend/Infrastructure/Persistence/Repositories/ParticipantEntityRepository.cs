@@ -31,6 +31,7 @@ public class ParticipantEntityRepository(EduSqrlDbContext context) : EfcBaseRepo
             Concurrency = model.RowVersion
         };
 
+        // EF adds entity to Change Tracker (before repo calls uow to save changes)
         await Set.AddAsync(entity, ct);
     }
 

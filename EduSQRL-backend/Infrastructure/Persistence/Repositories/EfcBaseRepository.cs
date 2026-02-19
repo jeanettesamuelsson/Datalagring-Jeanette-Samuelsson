@@ -31,6 +31,7 @@ public abstract class EfcBaseRepository<TEntity, TKey, TModel>(DbContext context
             .AsNoTracking()
             .ToListAsync(ct);
 
+        // spread [..]
         return [..entities.Select(ToModel)];
     }
 

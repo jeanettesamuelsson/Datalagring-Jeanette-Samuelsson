@@ -28,13 +28,15 @@ public class CourseService(
     // create 
     public async Task<Guid> CreateAsync(CreateCourseInput input, CancellationToken ct)
     {
-      
+
+        Console.WriteLine($"DEBUG: Inkommande Kursnamn: {input.CourseName}, Kurskod: {input.CourseCode}");
+
         var courseId = Guid.NewGuid();
         
         var course = new Course(
             Id: courseId,
-            CourseCode: input.CourseCode,
             CourseName: input.CourseName,
+            CourseCode: input.CourseCode,
             Description: input.Description,
             RowVersion: Array.Empty<byte>()
 

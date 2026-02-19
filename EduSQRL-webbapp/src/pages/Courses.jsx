@@ -1,21 +1,18 @@
 import React, { useState, useEffect } from 'react';
 
 const Courses = () => {
-  // States för data
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Form state - mappar mot din CreateCourseInput i C#
   const [courseData, setCourseData] = useState({
-    courseName: '', // Matchar C# fältnamn
+    courseName: '',
     courseCode: '',
     description: ''
   });
 
   const API_URL = 'https://localhost:7054/api/courses';
 
-  // 1. Hämta alla kurser vid start
   useEffect(() => {
     fetchCourses();
   }, []);
@@ -34,10 +31,35 @@ const Courses = () => {
     }
   };
 
-  // 2. Spara ny kurs (POST)
+  // --- NYHET: FUNKTION FÖR ATT RADERA ---
+  const handleDelete = async (id, rowVersion) => {
+    if (!window.confirm("Är du säker på att du vill ta bort den här kursen ur förrådet?")) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_URL}/${id}`, {
+        method: 'DELETE',
+        headers: { 'If-Match': rowVersion },
+       
+      });
+
+      if (!response.ok) {
+        if (response.status === 409) {
+          throw new Error("Kunde inte radera: Kursen har ändrats av någon annan. Ladda om sidan.");
+        }
+        throw new Error("Gick inte att radera kursen");
+      }
+
+      // Uppdatera listan efter lyckad radering
+      fetchCourses();
+    } catch (err) {
+      alert(`Hoppsan: ${err.message}`);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
     try {
       const response = await fetch(API_URL, {
         method: 'POST',
@@ -47,12 +69,8 @@ const Courses = () => {
 
       if (!response.ok) throw new Error("Gick inte att spara kursen");
 
-      alert(`Kursen ${courseData.courseName} har sparats i förrådet!`);
-      
-      // Rensa formulär och uppdatera listan
       setCourseData({ courseName: '', courseCode: '', description: '' });
       fetchCourses(); 
-
     } catch (err) {
       alert(`Hoppsan: ${err.message}`);
     }
@@ -67,6 +85,14 @@ const Courses = () => {
       {/* VÄNSTER: LISTA PÅ KURSER */}
       <div className="list-section">
         <h3>Befintliga kurser</h3>
+
+          {courses.length === 0 ? (
+          <div className="empty-state-box">
+            <p>Här var det tomt! 🐿️</p>
+            <span>Lägg till nya kurser i formuläret till höger för att fylla förrådet.</span>
+          </div>
+        ) : (
+
         <ul className="data-list">
           {courses.map((course) => (
             <li key={course.id} className="data-list-item">
@@ -75,21 +101,30 @@ const Courses = () => {
                 <br />
                 <span className="item-info">{course.courseCode}</span>
               </div>
-              <div style={{ maxWidth: '200px' }}>
+              
+              <div style={{ maxWidth: '150px' }}>
                 <p className="item-info" style={{ fontSize: '0.75rem', fontStyle: 'italic' }}>
                   {course.description}
                 </p>
               </div>
+
+              {/* TA BORT-KNAPPEN */}
+              <button 
+                className="btn-delete"
+                onClick={() => handleDelete(course.id, course.rowVersion)}
+              >
+                Ta bort
+              </button>
             </li>
           ))}
         </ul>
+        )}
       </div>
 
       {/* HÖGER: FORMULÄR */}
       <div className="form-container">
         <h3>Lägg till ny kurs</h3>
         <form onSubmit={handleSubmit} className="course-form">
-          
           <div className="form-group">
             <label htmlFor="courseName">Kursens namn</label>
             <input 
@@ -120,8 +155,8 @@ const Courses = () => {
               id="description"
               value={courseData.description}
               onChange={(e) => setCourseData({...courseData, description: e.target.value})}
-              placeholder="Kort beskrivning av kursens innehåll..."
-              rows="4"
+              placeholder="Kort beskrivning..."
+              rows="3"
               required
             ></textarea>
           </div>

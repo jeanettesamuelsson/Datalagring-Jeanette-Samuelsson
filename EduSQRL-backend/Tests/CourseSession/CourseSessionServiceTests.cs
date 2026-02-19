@@ -11,7 +11,7 @@ namespace Tests.CourseSession;
 
 public class CourseSessionServiceTests
 {
-    // --- FIELDS ---
+    
     // private fields
     private readonly ICourseSessionRepository _sessionRepoMock;
     private readonly ICourseRepository _courseRepoMock;
@@ -20,7 +20,6 @@ public class CourseSessionServiceTests
     private readonly CourseSessionService _service;
 
     // --- CONSTRUCTOR ---
-    
     public CourseSessionServiceTests()
     {
         _sessionRepoMock = Substitute.For<ICourseSessionRepository>();
@@ -28,7 +27,8 @@ public class CourseSessionServiceTests
         _locationRepoMock = Substitute.For<ILocationRepository>();
         _uowMock = Substitute.For<IUnitOfWork>();
 
-        
+        // create service and send in mocks
+
         _service = new CourseSessionService(
             _sessionRepoMock,
             _courseRepoMock,
@@ -39,7 +39,7 @@ public class CourseSessionServiceTests
 
     }
 
-    // --- HELPER METHOD --- for creating test data
+    // --- helper method for creating test data
     
     private CreateCourseSessionInput CreateTestInput()
     {
@@ -54,11 +54,11 @@ public class CourseSessionServiceTests
         );
     }
 
-    // --- TEST 1: HAPPY PATH ---
+   
     [Fact]
     public async Task CreateAsync_ShouldReturnGuid_WhenCourseAndLocationExist()
     {
-        // 1. Arrange
+        // Arrange
         var input = CreateTestInput();
 
         _courseRepoMock.GetByIdAsync(input.CourseId, Arg.Any<CancellationToken>())
@@ -67,16 +67,16 @@ public class CourseSessionServiceTests
          "Programmering 1",
          "PRG01",
          "En bra kurs", 
-         []             // RowVersion (empty array)
+         []             
      ));
 
         _locationRepoMock.GetByIdAsync(input.LocationId, Arg.Any<CancellationToken>())
             .Returns(new Location(input.LocationId, "Nyköping", []));
 
-        // 2. Act
+        // Act
         var resultId = await _service.CreateAsync(input, CancellationToken.None);
 
-        // 3. Assert
+        // Assert
 
         // check ID not empty
 
@@ -88,9 +88,7 @@ public class CourseSessionServiceTests
         await _uowMock.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>());
     }
 
-    // --- TEST 2: SAD PATH ---
-
-
+    
     [Fact]
     public async Task CreateAsync_ShouldThrowArgumentException_WhenCourseIsMissing()
     {

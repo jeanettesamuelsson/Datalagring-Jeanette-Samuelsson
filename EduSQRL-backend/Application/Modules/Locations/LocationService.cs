@@ -18,14 +18,13 @@ public class LocationService
     ) : ILocationService
 
 {
-
     private static LocationOutput ToOutputModel(Location p) => new(
 
-        p.Id,
-        p.Name, 
-        p.RowVersion
+    p.Id,
+    p.Name, 
+    p.RowVersion
 
-        );
+     );
 
     // create 
     public async Task<Guid> CreateAsync(CreateLocationInput input, CancellationToken ct)
@@ -99,6 +98,7 @@ public class LocationService
         var location = await locations.GetByIdAsync(locationId, ct)
                        ?? throw new ArgumentException("Location not found");
 
+      
         await locations.UpdateAsync(location with { RowVersion = rowVersion }, ct);
 
         await locations.DeleteAsync(locationId, ct);

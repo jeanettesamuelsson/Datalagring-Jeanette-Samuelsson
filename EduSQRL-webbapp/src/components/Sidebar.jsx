@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Users, BookOpen, Calendar, ClipboardCheck, Home } from 'lucide-react';
-import SquirrelImg from '../assets/EduSQRL.svg';
+import { Users, BookOpen, Calendar, ClipboardCheck, Home, MapPin } from 'lucide-react';
+
 
 const Sidebar = () => {
   const location = useLocation();
@@ -12,14 +12,13 @@ const Sidebar = () => {
     { path: '/courses', label: 'Kurser', icon: <BookOpen size={22} /> },
     { path: '/instances', label: 'Kurstillfällen', icon: <Calendar size={22} /> },
     { path: '/registrations', label: 'Registreringar', icon: <ClipboardCheck size={22} /> },
+    { path: '/locations', label: 'Platser', icon: <MapPin size={22} /> },
   ];
 
   return (
     <aside className="sidebar">
       <div className="sidebar-header">
         
-          <img className="sidebar-image" src={SquirrelImg} alt="EduSqrl Mascot" />
-
         <h2 className="sidebar-logo">EduSQ(R)L</h2>
       </div>
       

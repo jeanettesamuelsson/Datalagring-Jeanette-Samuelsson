@@ -11,7 +11,7 @@ body {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   background-color: #121212;
   color: #f3f4f6;
-  line-height: 1.6;
+  line-height: 1.5; /* Något tätare radavstånd */
 }
 
 /* --- LAYOUT GRID --- */
@@ -20,8 +20,8 @@ body {
   grid-template-areas: 
     "header header"
     "sidebar content";
-  grid-template-columns: 280px 1fr;
-  grid-template-rows: 70px 1fr;
+  grid-template-columns: 240px 1fr; /* Smalare sidebar */
+  grid-template-rows: 60px 1fr;    /* Något lägre header */
   min-height: 100vh;
 }
 
@@ -31,229 +31,264 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0 40px;
-  gap: 20px;
+  padding: 0 20px;
   background-color: #1a1a1a;
-  color: white;
   border-bottom: 1px solid #333;
   z-index: 100;
 }
 
-/* --- SIDEBAR (NAVIGATION) --- */
+/* --- SIDEBAR --- */
 .sidebar {
   grid-area: sidebar;
-  width: 280px;
+  width: 240px;
   background-color: #1a1a1a;
   border-right: 1px solid #333;
   display: flex;
   flex-direction: column;
-  padding: 20px 25px; /* Lite mindre padding överst för bilden */
+  padding: 15px 15px;
   position: sticky;
-  top: 70px;
-  height: calc(100vh - 70px);
+  top: 60px;
+  height: calc(100vh - 60px);
 }
 
-/* NYTT: Behållare för bilden överst i sidebaren */
 .sidebar-header {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-bottom: 30px;
-}
-
-.sidebar-image {
-  width: 120px;
-  height: 120px;
-  object-fit: contain;
-  margin-bottom: 15px;
-  border-radius: 50%;
-  background-color: white;
- 
+  margin-bottom: 20px;
+  text-align: center;
 }
 
 .sidebar-logo {
   color: #ea580c;
-  font-size: 1.6rem;
+  font-size: 1.3rem; /* Mindre logga */
   font-weight: 800;
-  margin: 0;
-  letter-spacing: -0.5px;
-}
-
-.sidebar-nav {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
 }
 
 .nav-button {
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding: 16px 20px;
+  gap: 10px;
+  padding: 12px 16px; /* Tätare knappar */
   text-decoration: none;
   color: #9ca3af;
+  font-size: 0.9rem;
   font-weight: 600;
-  border-radius: 12px;
+  border-radius: 10px;
   transition: all 0.2s ease;
-  margin-bottom: 4px;
 }
 
 .nav-button:hover {
   background-color: #262626;
   color: #ea580c;
-  transform: translateX(5px);
-}
-
-.nav-button.active {
-  background-color: #ea580c;
-  color: white;
-  box-shadow: 0 4px 15px rgba(234, 88, 12, 0.3);
+  transform: translateX(3px);
 }
 
 /* --- CONTENT AREA --- */
 .content-section {
   grid-area: content;
-  padding: 60px 80px;
+  padding: 30px 50px; /* Mindre padding runt innehållet */
   background-color: #121212;
-  overflow-y: auto;
 }
 
 h2 {
-  font-size: 2.2rem;
-  font-weight: 800;
-  color: #ffffff;
-  margin-bottom: 3rem;
-  padding-left: 15px;
+  font-size: 1.6rem; /* Skalat ner från 2.2rem */
+  margin-bottom: 2rem;
 }
 
 h3 {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #f9fafb;
-  margin-bottom: 2rem;
-  padding-left: 10px;
+  font-size: 1.2rem;
+  margin-bottom: 1.5rem;
 }
 
 .content-container {
   display: flex;
-  align-items: flex-start;
-  gap: 5rem;
-  max-width: 1500px;
+  gap: 3rem; /* Mindre gap mellan lista och formulär */
+  max-width: 1400px;
 }
 
 /* LIST SECTION */
 .list-section {
   flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 3rem; 
 }
 
 .data-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 12px;
 }
 
 .data-list-item {
   background-color: #1e1e1e;
-  padding: 2rem;
-  border-radius: 16px;
+  padding: 1.2rem 1.5rem; /* Mindre padding inuti korten */
+  border-radius: 12px;
   border: 1px solid #333;
   display: flex;
-  gap: 550px;
-  justify-content: space-between;
+  justify-content: space-between; /* Sprider ut innehållet naturligt */
   align-items: center;
-  margin-bottom: 15px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
-  cursor: pointer; 
-  position: relative; 
+  transition: all 0.2s ease;
 }
 
 .data-list-item:hover {
-  border-color: #ea580c; 
-  background-color: #252525;
-  transform: translateY(-4px) scale(1.01); 
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
+  border-color: #ea580c;
+  transform: translateY(-2px);
 }
 
-
-.data-list-item a {
-  text-decoration: none;
-  color: inherit;
-  display: flex;
-  width: 100%;
-  justify-content: space-between;
-  align-items: center;
-}
-
-/* INFO CARD */
-.info-card {
-  background-color: #1e1e1e;
-  padding: 2.5rem;
-  border-radius: 24px;
-  border: 1px solid #333;
-  width: 320px; 
-  aspect-ratio: 1 / 1; 
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-}
-
-.info-card h4 {
-  color: #ea580c;
-  margin-bottom: 1rem;
-  font-size: 1.2rem;
-}
-
-.info-card p {
-  color: #d1d5db;
-  font-size: 0.95rem;
-  margin-bottom: 1.5rem;
-}
-
-/* --- FORMULÄR STYLING --- */
+/* Själva containern som formuläret ligger i */
 .form-container {
-  background-color: #1e1e1e;
-  padding: 4rem;
-  border-radius: 24px;
-  border: 1px solid #333;
-  width: 500px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+  background-color:#1a1a1a; 
+  padding: 25px;
+  border-radius: 15px;
+  border: 1px solid #252b36; /* En subtil ram runt hela boxen */
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5); /* Djupare skugga för mörkt tema */
 }
 
-.form-group {
+/* Rubriker i formuläret */
+.form-container h3 {
+  color: #f9fafb; /* Nästan helt vit */
+  margin-top: 0;
+}
+
+/* Labels (texten ovanför fälten) */
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #d1d5db; /* Ljusgrå för att inte vara för stickig mot ögat */
+  font-size: 0.95rem;
+}
+
+/* Inmatningsfälten (Input, Textarea, Select) */
+.form-group input,
+.form-group textarea,
+.form-group select {
+  width: 100%;
+  padding: 12px;
+  font-size: 1rem;
+  font-family: inherit;
+  /* Mörk bakgrund inuti fälten */
+  background-color: #2e384f59; 
+  /* Mörkgrå ram som standard */
+  border: 2px solid #4b5563; 
+  border-radius: 8px;
+  /* Ljus text så man ser vad man skriver */
+  color: #f9fafb; 
+  transition: all 0.2s ease-in-out;
+  box-sizing: border-box;
+  outline: none;
+}
+
+/* Specifikt för select (drop-down) i Dark Mode */
+.form-group select {
+  cursor: pointer;
+  appearance: none;
+  /* Vi behåller den orangea pilen - den poppar riktigt bra mot svart! */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23ea580c'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+  padding-right: 40px;
+}
+
+/* Hover-effekt på fälten */
+.form-group input:hover,
+.form-group textarea:hover,
+.form-group select:hover {
+  border-color: #6b7280;
+}
+
+/* Focus - när fältet är aktivt */
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+  border-color: #ea580c; /* Orange blir kvar som vår tydliga markör */
+  background-color: #030712; /* Ännu mörkare vid fokus */
+  box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.3);
+}
+
+/* Placeholder-text (den bleka texten innan man skrivit något) */
+::placeholder {
+  color: #6b7280;
+}
+
+/* --- EMPTY STATE STYLING --- */
+.empty-state-box {
+  background-color: #1e1e1e;
+  border: 2px dashed #333; /* Streckad ram gör att det ser ut som en "plats" som väntar på innehåll */
+  border-radius: 16px;
+  padding: 40px;
+  text-align: center;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  margin-bottom: 30px;
+  gap: 10px;
+  margin-top: 10px;
 }
 
-.form-group input, 
-.form-group textarea, 
-.form-group select {
-  padding: 16px 20px;
-  border: 1px solid #444;
-  border-radius: 14px;
-  font-size: 1rem;
-  background-color: #2d2d2d;
-  color: #ffffff;
-}
-
-.btn-add-course {
-  background-color: #ea580c;
-  color: white;
-  border: none;
-  padding: 18px;
-  border-radius: 14px;
-  font-size: 1.1rem;
+.empty-state-box p {
+  color: #ea580c; /* Din orangea färg */
+  font-size: 1.2rem;
   font-weight: 700;
-  cursor: pointer;
-  width: 100%;
+  margin: 0;
+}
+
+.empty-state-box span {
+  color: #9ca3af;
+  font-size: 0.9rem;
+}
+
+/* Media Query för skärmar mindre än 1024px (Tablets och Mobiler) */
+@media (max-width: 1024px) {
+  
+  /* Gör så att listan och formuläret staplas vertikalt */
+  .content-container {
+    flex-direction: column;
+    gap: 30px; /* Mer avstånd mellan sektionerna */
+    padding: 15px;
+  }
+
+  /* Se till att båda sektionerna tar upp hela bredden */
+  .list-section, 
+  .form-container {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  /* Gör formuläret mer kompakt på mobilen */
+  .form-container {
+    padding: 20px;
+    order: -1; /* Flyttar formuläret ÖVERST på mobilen så man ser det först */
+  }
+
+  /* Om du har fält bredvid varandra (som start/slutdatum), stapla dem också */
+  .form-row {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  /* Justera textstorlek för mobilen */
+  h3 {
+    font-size: 1.25rem;
+    text-align: center;
+  }
+
+  /* Gör knapparna lite större för lättare tryck (Touch-friendly) */
+  .btn-add-course, 
+  .btn-delete {
+    padding: 14px;
+    font-size: 1rem;
+    width: 100%; /* Knappar tar hela bredden på mobil */
+    display: flex;
+    justify-content: center;
+  }
+
+  /* Listan blir mer kompakt */
+  .data-list-item {
+    padding: 12px;
+    flex-direction: column; /* Stapla info och knapp inuti list-elementet */
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .data-list-item div[style*="textAlign: right"] {
+    text-align: left !important;
+    width: 100%;
+    justify-content: space-between;
+  }
 }

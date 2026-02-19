@@ -11,6 +11,8 @@ using Domain.Models;
 namespace Application.Modules.Participants;
 
 public class ParticipantService
+
+    // primary constructor
     (
     IParticipantRepository participants,
     IUnitOfWork uow,
@@ -20,8 +22,6 @@ public class ParticipantService
 
 
 {
-
-    private readonly IRoleService _roleService = roleService;
 
     private static ParticipantOutput ToOutputModel(Participant p) => new(
         p.Id,
@@ -42,12 +42,14 @@ public class ParticipantService
         var email = new Email(input.Email);
         var phoneNumber = new PhoneNumber(input.PhoneNumber);
 
+        // call repo method to check if email is already in database => true, throw exception
+
         if (await participants.EmailAlreadyExistsAsync(email.Value, ct))
            throw new ArgumentException("Email already exists");
 
         //validate roles input
 
-        var roles = await _roleService.GetRolesAsync(ct);
+        var roles = await roleService.GetRolesAsync(ct);
 
         if (!roles.Any(r => r.Id == input.RoleId))
             throw new ArgumentException($"Invalid RoleId: {input.RoleId}");
@@ -70,7 +72,11 @@ public class ParticipantService
 
             );
 
+        // call repository method AddAsync
+
         await participants.AddAsync(participant);
+
+        // save changes in unit of work
 
         await uow.SaveChangesAsync(ct);
 
@@ -97,14 +103,15 @@ public class ParticipantService
     //update
     public async Task<ParticipantOutput?> UpdateAsync(UpdateParticipantInput input, CancellationToken ct)
     {
-        
+        // call repo
+
         var participant = await participants.GetByIdAsync(input.Id, ct);
         if (participant is null)
             return null;
 
         //validate roles input
 
-        var roles = await _roleService.GetRolesAsync(ct);
+        var roles = await roleService.GetRolesAsync(ct);
 
         if (!roles.Any(r => r.Id == input.RoleId))
             throw new ArgumentException($"Invalid RoleId: {input.RoleId}");

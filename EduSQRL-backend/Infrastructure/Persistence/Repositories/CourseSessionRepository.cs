@@ -31,16 +31,17 @@ public class CourseSessionRepository(EduSqrlDbContext context) : EfcBaseReposito
 
     // map entity to model
     public override CourseSession ToModel(CourseSessionEntity entity) => new(
-        
-            entity.Id,
-            entity.CourseId,
-            entity.LocationId,
-            entity.Course.CourseName,
-            entity.Location.Name, 
-            entity.StartDate,
-            entity.EndDate,
-            entity.Capacity,
-            entity.Concurrency
+
+    entity.Id,
+    entity.CourseId,
+    entity.LocationId,
+    entity.Course.CourseName, 
+    entity.Location.Name,
+    entity.StartDate,
+    entity.EndDate,
+    entity.Capacity,
+    entity.Concurrency
+
 
     );
     
@@ -74,5 +75,16 @@ public class CourseSessionRepository(EduSqrlDbContext context) : EfcBaseReposito
             .ToListAsync(ct);
 
         return entities.Select(ToModel).ToList();
+    }
+
+    public override async Task<CourseSession?> GetByIdAsync(Guid id, CancellationToken ct = default)
+    {
+        var entity = await Set
+            .Include(x => x.Course)   
+            .Include(x => x.Location) 
+            .AsNoTracking()
+            .SingleOrDefaultAsync(x => x.Id == id, ct);
+
+        return entity is null ? null : ToModel(entity);
     }
 }

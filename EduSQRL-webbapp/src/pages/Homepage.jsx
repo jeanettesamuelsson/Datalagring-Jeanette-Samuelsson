@@ -1,26 +1,26 @@
 import React, { useState, useEffect } from 'react';
-import { Squirrel, ArrowRight } from 'lucide-react'; 
+import { Squirrel, ArrowRight, Calendar, MapPin } from 'lucide-react'; 
 import { Link } from 'react-router-dom';
 
 const Homepage = () => {
-  const [courses, setCourses] = useState([]);
+  const [sessions, setSessions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    // 1. Definiera URL till ditt API
-    const API_URL = 'https://localhost:7054/api/courses';
+    // 1. Ändra URL till ditt endpoint för kurstillfällen
+    const API_URL = 'https://localhost:7054/api/courseSessions';
 
     // 2. Hämta data från backend
     fetch(API_URL)
       .then((response) => {
         if (!response.ok) {
-          throw new Error('Kunde inte hämta kurserna från servern.');
+          throw new Error('Kunde inte hämta kurstillfällen från servern.');
         }
         return response.json();
       })
       .then((data) => {
-        setCourses(data);
+        setSessions(data);
         setLoading(false);
       })
       .catch((err) => {
@@ -38,44 +38,41 @@ const Homepage = () => {
 
   return (
     <div className="homepage-container">
-      <h2>Välkommen till EduSQ(R)L</h2>
-
       <div className="content-container">
-        {/* List of courses */}
+        {/* List of course sessions */}
         <div className="list-section">
-          <h3>Våra pågående kurser, klicka för att registrera!</h3>
+          <h3>Aktuella kurstillfällen</h3>
+          <p style={{ marginBottom: '20px', color: '#666' }}>Passa på att säkra din plats!</p>
           
           <ul className="data-list">
-            {courses.map((course) => ( 
-              // Använd course.id som key (alltid bäst med Guid)
-              <li key={course.id} className="data-list-item">
-                <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                  <div>
-                    {/* Kontrollera att fältnamnet matchar din CourseOutput DTO (troligen courseName) */}
-                    <span className="item-name">{course.courseName}</span>
-                    <br />
-                    <span className="item-info">{course.courseCode}</span>
+            {sessions.map((session) => ( 
+              <li key={session.id} className="data-list-item">
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                  {/* Kursens namn (nu när vi fixat backenden så den följer med!) */}
+                  <span className="item-name" style={{ fontWeight: 'bold' }}>
+                    {session.courseName}
+                  </span>
+                  
+                  {/* Info om plats och datum */}
+                  <div style={{ display: 'flex', gap: '15px', color: '#6b7280', fontSize: '0.85rem' }}>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                      <MapPin size={14} /> {session.locationName}
+                    </span>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                      <Calendar size={14} /> {new Date(session.startDate).toLocaleDateString()}
+                    </span>
                   </div>
                 </div>
                 
-                {/* Länka till registrering - tips: skicka med kursens ID i URLen! */}
-                <Link to={`/registrations?courseId=${course.id}`} style={{ color: '#ea580c' }}>
-                  <ArrowRight size={15} />
+                {/* Länka till registrering med sessionId */}
+                <Link to={`/registrations?sessionId=${session.id}`} style={{ color: '#ea580c' }}>
+                  <ArrowRight size={20} />
                 </Link>
               </li>
             ))}
           </ul>
         </div>
 
-        {/* Info Card */}
-        <div className="info-card" style={{ background: '#fff7ed', padding: '20px', borderRadius: '15px', border: '1px solid #ffedd5' }}>
-           <h4 style={{ color: '#c2410c', marginTop: 0 }}>Visste du att...</h4>
-           <p style={{ color: '#4b5563', fontSize: '0.9rem' }}>
-             EduSQ(R)L hjälper dig att hålla koll på nötterna – jag menar, kurserna! 
-             Just nu har vi **{courses.length}** kurser aktiva i systemet.
-           </p>
-           <Squirrel size={40} color="#ea580c" />
-        </div>
       </div>
     </div>
   );

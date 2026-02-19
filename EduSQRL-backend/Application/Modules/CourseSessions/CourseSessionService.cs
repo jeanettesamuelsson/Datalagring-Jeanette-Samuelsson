@@ -123,8 +123,6 @@ public class CourseSessionService(
         var courseSession= await courseSessions.GetByIdAsync(courseSessionId, ct)
                        ?? throw new ArgumentException("Course session not found");
 
-        await courseSessions.UpdateAsync(courseSession with { RowVersion = rowVersion }, ct);
-
         await courseSessions.DeleteAsync(courseSessionId, ct);
 
         await uow.SaveChangesAsync(ct);

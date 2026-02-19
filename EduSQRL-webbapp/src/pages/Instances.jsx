@@ -1,16 +1,13 @@
 import React, { useState, useEffect } from 'react';
 
 const Instances = () => {
-  // States för data från API
   const [sessions, setSessions] = useState([]);
   const [courses, setCourses] = useState([]);
   const [locations, setLocations] = useState([]);
   
-  // UI States
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Form state - Matchar din CreateCourseSessionInput i C#
   const [formData, setFormData] = useState({
     courseId: '',
     locationId: '',
@@ -21,39 +18,65 @@ const Instances = () => {
 
   const BASE_URL = 'https://localhost:7054/api';
 
-  // 1. Hämta all nödvändig data
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        const [sessRes, courseRes, locRes] = await Promise.all([
-          fetch(`${BASE_URL}/courseSessions`),
-          fetch(`${BASE_URL}/courses`),
-          fetch(`${BASE_URL}/locations`)
-        ]);
-
-        if (!sessRes.ok || !courseRes.ok || !locRes.ok) 
-          throw new Error("Kunde inte hämta data från servern");
-
-        setSessions(await sessRes.json());
-        setCourses(await courseRes.json());
-        setLocations(await locRes.json());
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchData();
   }, []);
 
-  // 2. Skapa nytt kurstillfälle (POST)
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const [sessRes, courseRes, locRes] = await Promise.all([
+        fetch(`${BASE_URL}/courseSessions`),
+        fetch(`${BASE_URL}/courses`),
+        fetch(`${BASE_URL}/locations`)
+      ]);
+
+      if (!sessRes.ok || !courseRes.ok || !locRes.ok) 
+        throw new Error("Kunde inte hämta data från servern");
+
+      setSessions(await sessRes.json());
+      setCourses(await courseRes.json());
+      setLocations(await locRes.json());
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // --- RADERA KURSTILLFÄLLE ---
+  const handleDelete = async (id, rowVersion) => {
+    if (!window.confirm("Är du säker på att du vill ta bort detta kurstillfälle? Det kan finnas studenter registrerade.")) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`${BASE_URL}/courseSessions/${id}`, {
+        method: 'DELETE',
+        headers: { 'If-Match': rowVersion },
+        
+      });
+
+      if (!response.ok) {
+        if (response.status === 409) {
+          throw new Error("Kunde inte radera: Tillfället har uppdaterats av någon annan.");
+        }
+        throw new Error("Gick inte att radera kurstillfället.");
+      }
+
+      // Uppdatera listan efter lyckad radering
+      const updatedSessions = await fetch(`${BASE_URL}/courseSessions`).then(res => res.json());
+      setSessions(updatedSessions);
+      alert("Kurstillfället är nu raderat. 🐿️");
+
+    } catch (err) {
+      alert(`Hoppsan: ${err.message}`);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
     try {
-      // Konvertera capacity till siffra innan sändning
       const payload = { 
         ...formData, 
         capacity: parseInt(formData.capacity) 
@@ -67,10 +90,7 @@ const Instances = () => {
 
       if (!response.ok) throw new Error("Kunde inte skapa kurstillfället");
 
-      // Uppdatera listan direkt
-      const updatedSessions = await fetch(`${BASE_URL}/courseSessions`).then(res => res.json());
-      setSessions(updatedSessions);
-      
+      fetchData(); // Hämta all data på nytt
       alert(`Nytt kurstillfälle har skapats! 🐿️`);
       setFormData({ courseId: '', locationId: '', startDate: '', endDate: '', capacity: '' });
       
@@ -88,6 +108,15 @@ const Instances = () => {
       {/* VÄNSTER: LISTA PÅ SESSIONER */}
       <div className="list-section">
         <h3>Kommande kurstillfällen</h3>
+
+         {sessions.length === 0 ? (
+          <div className="empty-state-box">
+            <p>Här var det tomt! 🐿️</p>
+            <span>Lägg till nya kurstillfällen i formuläret till höger för att fylla förrådet.</span>
+          </div>
+        ) : (
+
+
         <ul className="data-list">
           {sessions.map((sess) => (
             <li key={sess.id} className="data-list-item">
@@ -98,19 +127,28 @@ const Instances = () => {
                   {sess.locationName} | {new Date(sess.startDate).toLocaleDateString()}
                 </span>
               </div>
-              <div style={{ textAlign: 'right' }}>
+              <div style={{ textAlign: 'right', display: 'flex', alignItems: 'center', gap: '15px' }}>
                  <span className="expertise-tag">{sess.capacity} platser</span>
+                 
+                 {/* TA BORT-KNAPPEN */}
+                 <button 
+                  className="btn-delete"
+                  onClick={() => handleDelete(sess.id, sess.rowVersion)}
+                 >
+                  Ta bort
+                 </button>
               </div>
             </li>
           ))}
-        </ul>
+        </ul> 
+
+        )}
       </div>
 
       {/* HÖGER: FORMULÄR */}
       <div className="form-container">
         <h3>Planera nytt kurstillfälle</h3>
         <form onSubmit={handleSubmit} className="course-form">
-          
           <div className="form-group">
             <label>Kurs</label>
             <select 
@@ -127,8 +165,8 @@ const Instances = () => {
             </select>
           </div>
 
-          <div className="form-row">
-            <div className="form-group">
+          <div className="form-row" style={{ display: 'flex', gap: '10px' }}>
+            <div className="form-group" style={{ flex: 1 }}>
               <label>Startdatum</label>
               <input 
                 type="date" 
@@ -137,7 +175,7 @@ const Instances = () => {
                 onChange={(e) => setFormData({...formData, startDate: e.target.value})}
               />
             </div>
-            <div className="form-group">
+            <div className="form-group" style={{ flex: 1 }}>
               <label>Slutdatum</label>
               <input 
                 type="date" 

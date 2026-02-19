@@ -1,16 +1,13 @@
 import React, { useState, useEffect } from 'react';
 
 const Registrations = () => {
-  // State för listor från databasen
   const [registrations, setRegistrations] = useState([]);
   const [participants, setParticipants] = useState([]);
   const [sessions, setSessions] = useState([]);
   
-  // State för laddning/fel
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // State för formuläret (matchar din CreateRegistrationInput)
   const [formData, setFormData] = useState({
     participantId: '',
     courseSessionId: '',
@@ -18,42 +15,66 @@ const Registrations = () => {
 
   const BASE_URL = 'https://localhost:7054';
 
-  // 1. Hämta all data vid start
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        
-        // Vi kör alla hämtningar parallellt för snabbhet
-        const [regRes, partRes, sessRes] = await Promise.all([
-          fetch(`${BASE_URL}/api/registrations`),
-          fetch(`${BASE_URL}/participants`), // Notera: ingen /api/ enligt din Program.cs
-          fetch(`${BASE_URL}/api/courseSessions`)
-        ]);
-
-        if (!regRes.ok || !partRes.ok || !sessRes.ok) throw new Error("Kunde inte hämta data");
-
-        const regData = await regRes.json();
-        const partData = await partRes.json();
-        const sessData = await sessRes.json();
-
-        setRegistrations(regData);
-        setParticipants(partData);
-        setSessions(sessData);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchData();
   }, []);
 
-  // 2. Skicka ny registrering till API
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const [regRes, partRes, sessRes] = await Promise.all([
+        fetch(`${BASE_URL}/api/registrations`),
+        fetch(`${BASE_URL}/participants`),
+        fetch(`${BASE_URL}/api/courseSessions`)
+      ]);
+
+      if (!regRes.ok || !partRes.ok || !sessRes.ok) throw new Error("Kunde inte hämta data");
+
+      const regData = await regRes.json();
+      const partData = await partRes.json();
+      const sessData = await sessRes.json();
+
+      setRegistrations(regData);
+      setParticipants(partData);
+      setSessions(sessData);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // --- delete ---
+  const handleDelete = async (id, rowVersion) => {
+    if (!window.confirm("Vill du verkligen ta bort denna registrering?")) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`${BASE_URL}/api/registrations/${id}`, {
+        method: 'DELETE',
+        headers: { 'If-Match': rowVersion },
+       
+      });
+
+      if (!response.ok) {
+        if (response.status === 409) {
+          throw new Error("Kunde inte radera: Registreringen har ändrats nyss. Ladda om sidan.");
+        }
+        throw new Error("Gick inte att radera registreringen");
+      }
+
+      // Update list aftr deleting
+      fetchData(); 
+      alert("Registreringen har raderats ur förrådet.");
+      
+    } catch (err) {
+      alert(`Hoppsan: ${err.message}`);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
     try {
       const response = await fetch(`${BASE_URL}/api/registrations`, {
         method: 'POST',
@@ -66,12 +87,9 @@ const Registrations = () => {
         throw new Error(errorText || "Registreringen misslyckades");
       }
 
-      // Om det gick bra: Hämta listan på nytt för att se den nya raden
-      const updatedRegs = await fetch(`${BASE_URL}/api/registrations`).then(res => res.json());
-      setRegistrations(updatedRegs);
-      
+      fetchData(); // Hämta på nytt
       alert(`Ekorr-post skickad! Registreringen är klar.`);
-      setFormData({ participantId: '', courseSessionId: '' }); // Töm formulär
+      setFormData({ participantId: '', courseSessionId: '' });
       
     } catch (err) {
       alert(`Hoppsan: ${err.message}`);
@@ -84,9 +102,16 @@ const Registrations = () => {
   return (
     <div className="content-container">
       
-      {/* VÄNSTER: LISTA PÅ REGISTRERINGAR (Hämtas från DB) */}
+      {/* LIST OF REGISTRATIONS */}
       <div className="list-section">
         <h3>Genomförda registreringar</h3>
+
+        {registrations.length === 0 ? (
+          <div className="empty-state-box">
+            <p>Här var det tomt! 🐿️</p>
+            <span>Lägg till nya registreringar i formuläret till höger för att fylla förrådet.</span>
+          </div>
+        ) : (
         <ul className="data-list">
           {registrations.map((reg) => (
             <li key={reg.id} className="data-list-item">
@@ -95,20 +120,32 @@ const Registrations = () => {
                 <br />
                 <span className="item-info">{reg.courseName}</span>
               </div>
-              <div style={{ textAlign: 'right' }}>
-                <span className="item-info" style={{ display: 'block' }}>{new Date(reg.created).toLocaleDateString()}</span>
-                <span className={`status-badge ${reg.status.toLowerCase()}`}>{reg.status}</span>
+              <div style={{ textAlign: 'right', display: 'flex', alignItems: 'center', gap: '15px' }}>
+                <div>
+                  <span className="item-info" style={{ display: 'block' }}>{new Date(reg.created).toLocaleDateString()}</span>
+                  <span className={`status-badge ${reg.status.toLowerCase()}`}>{reg.status}</span>
+                </div>
+                
+                {/* DELETE BTN */}
+                <button 
+                  className="btn-delete"
+                  onClick={() => handleDelete(reg.id, reg.rowVersion)}
+                >
+                  Ta bort
+                </button>
               </div>
             </li>
           ))}
         </ul>
+        )}
       </div>
 
       {/* HÖGER: FORMULÄRET */}
       <div className="form-container">
         <h3>Ny kursregistrering</h3>
-        <form onSubmit={handleSubmit} className="course-form">
+
           
+        <form onSubmit={handleSubmit} className="course-form">
           <div className="form-group">
             <label>Välj student</label>
             <select 
@@ -143,6 +180,7 @@ const Registrations = () => {
 
           <button type="submit" className="btn-add-course">Registrera på kurs</button>
         </form>
+        
       </div>
     </div>
   );

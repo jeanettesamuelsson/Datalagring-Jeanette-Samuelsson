@@ -12,11 +12,11 @@ namespace Tests.Participants;
 
 public class ParticipantServiceTests
 {
-    // happy path
+    
     [Fact]
     public async Task GetByIdAsync_ShouldReturnParticipant_WhenParticipantExists()
     {
-        // --- 1. ARRANGE ---
+        // --- ARRANGE ---
 
         // create mocks
 
@@ -48,11 +48,11 @@ public class ParticipantServiceTests
         
         repoMock.GetByIdAsync(participantId).Returns(expectedParticipant);
 
-        // --- 2. ACT  ---
+        // --- ACT  ---
        
         var result = await service.GetByIdAsync(participantId, CancellationToken.None);
 
-        // --- 3. ASSERT  ---
+        // --- ASSERT  ---
        
         // check result not null
 
@@ -71,7 +71,7 @@ public class ParticipantServiceTests
     [Fact]
     public async Task GetByIdAsync_ShouldReturnNull_WhenParticipantDoesNotExist()
     {
-        // --- 1. ARRANGE ---
+        // --- ARRANGE ---
 
         // create mocks
 
@@ -88,11 +88,11 @@ public class ParticipantServiceTests
         repoMock.GetByIdAsync(nonExistentId, Arg.Any<CancellationToken>())
                 .Returns((Participant?)null);
 
-        // --- 2. ACT ---
+        // --- ACT ---
 
         var result = await service.GetByIdAsync(nonExistentId, CancellationToken.None);
 
-        // --- 3. ASSERT ---
+        // ---  ASSERT ---
 
         // result should be null
 

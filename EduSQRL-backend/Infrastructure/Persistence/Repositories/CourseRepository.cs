@@ -22,8 +22,8 @@ public class CourseRepository(EduSqrlDbContext context) : EfcBaseRepository<Cour
         var entity = new CourseEntity
         {
             Id = model.Id,
-            CourseCode = model.CourseCode,
             CourseName = model.CourseName,
+            CourseCode = model.CourseCode,
             Description = model.Description,
             Concurrency = model.RowVersion,
             Created = DateTime.UtcNow,
@@ -36,14 +36,12 @@ public class CourseRepository(EduSqrlDbContext context) : EfcBaseRepository<Cour
 
     //method to map from CourseEntity to CourseModel
     public override Course ToModel(CourseEntity entity) => new(
-
-        entity.Id,
-        entity.CourseCode, 
-        entity.CourseName,
-        entity.Description,
-        entity.Concurrency
-
-    );
+       Id: entity.Id,
+       CourseName: entity.CourseName, 
+       CourseCode: entity.CourseCode,
+       Description: entity.Description,
+       RowVersion: entity.Concurrency
+   );
 
     public override async Task UpdateAsync(Course model, CancellationToken ct = default)
     {
@@ -57,9 +55,9 @@ public class CourseRepository(EduSqrlDbContext context) : EfcBaseRepository<Cour
 
         Context.Entry(entity).Property(x => x.Concurrency).OriginalValue = model.RowVersion;
 
-
-        entity.CourseCode = model.CourseCode;
         entity.CourseName = model.CourseName;
+        entity.CourseCode = model.CourseCode;
+        
         entity.Description = model.Description;
         entity.Modified = DateTime.UtcNow;
 

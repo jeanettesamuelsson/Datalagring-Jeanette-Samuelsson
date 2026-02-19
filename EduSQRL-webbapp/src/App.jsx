@@ -7,6 +7,7 @@ import Homepage from './pages/Homepage';
 import Header from './components/Header';
 import Registrations from './pages/Registrations';
 import Sidebar from './components/Sidebar';
+import Locations from './pages/Locations';
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
             <Route path="/instances" element={<Instances/>} />
             <Route path="/participants" element={<Participants />} />
             <Route path="/registrations" element={<Registrations />} />
+            <Route path="/locations" element={<Locations />} />
           </Routes>
         </main>
 
