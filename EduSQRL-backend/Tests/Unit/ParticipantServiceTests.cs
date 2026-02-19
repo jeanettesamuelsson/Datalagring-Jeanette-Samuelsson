@@ -8,7 +8,7 @@ using NSubstitute;
 
 
 
-namespace Tests.Participants;
+namespace Tests.Unit;
 
 public class ParticipantServiceTests
 {
@@ -48,11 +48,11 @@ public class ParticipantServiceTests
         
         repoMock.GetByIdAsync(participantId).Returns(expectedParticipant);
 
-        // --- ACT  ---
+        // Act 
        
         var result = await service.GetByIdAsync(participantId, CancellationToken.None);
 
-        // --- ASSERT  ---
+        // Assert
        
         // check result not null
 
@@ -71,7 +71,7 @@ public class ParticipantServiceTests
     [Fact]
     public async Task GetByIdAsync_ShouldReturnNull_WhenParticipantDoesNotExist()
     {
-        // --- ARRANGE ---
+        // Arrange
 
         // create mocks
 
@@ -88,12 +88,11 @@ public class ParticipantServiceTests
         repoMock.GetByIdAsync(nonExistentId, Arg.Any<CancellationToken>())
                 .Returns((Participant?)null);
 
-        // --- ACT ---
+        // Act
 
         var result = await service.GetByIdAsync(nonExistentId, CancellationToken.None);
 
-        // ---  ASSERT ---
-
+        // Assert
         // result should be null
 
         Assert.Null(result);

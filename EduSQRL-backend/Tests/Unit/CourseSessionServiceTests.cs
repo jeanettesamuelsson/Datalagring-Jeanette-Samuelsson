@@ -7,7 +7,7 @@ using Application.Modules.Locations;
 using Application.Abstractions.Persistence;
 using Domain.Models;
 
-namespace Tests.CourseSession;
+namespace Tests.Unit;
 
 public class CourseSessionServiceTests
 {
@@ -84,7 +84,7 @@ public class CourseSessionServiceTests
 
         // check that repo and uow was called once
 
-        await _sessionRepoMock.Received(1).AddAsync(Arg.Any<Domain.Models.CourseSession>(), Arg.Any<CancellationToken>());
+        await _sessionRepoMock.Received(1).AddAsync(Arg.Any<CourseSession>(), Arg.Any<CancellationToken>());
         await _uowMock.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>());
     }
 
@@ -112,7 +112,7 @@ public class CourseSessionServiceTests
 
         // check that repo and uow was never called 
 
-        await _sessionRepoMock.DidNotReceive().AddAsync(Arg.Any<Domain.Models.CourseSession>(), Arg.Any<CancellationToken>());
+        await _sessionRepoMock.DidNotReceive().AddAsync(Arg.Any<CourseSession>(), Arg.Any<CancellationToken>());
         await _uowMock.DidNotReceive().SaveChangesAsync(Arg.Any<CancellationToken>());
     }
 
