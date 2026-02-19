@@ -27,6 +27,36 @@ const Locations = () => {
     }
   };
 
+  // --- update function ---
+  const handleUpdate = async (e) => {
+
+    e.preventDefault();
+   
+    try {
+      const response = await fetch(`${API_URL}/${editingLocation.id}`, {
+      method: 'PUT',
+      headers: { 
+        'Content-Type': 'application/json',
+        'If-Match': editingLocation.rowVersion 
+      },
+      body: JSON.stringify(editingCourse)
+    });
+
+      if (!response.ok) {
+      if (response.status === 412 || response.status === 409) {
+        throw new Error("Platsen har ändrats av någon annan. Ladda om sidan.");
+      }
+      throw new Error("Det gick inte att uppdatera platsen");
+    }
+
+    setEditingCourse(null); // close modal
+    fetchCourses();         // update list
+    alert("Platsen är uppdaterad! 🐿️");
+  } catch (err) {
+    alert(`Hoppsan: ${err.message}`);
+  }
+};
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -76,7 +106,7 @@ const Locations = () => {
   return (
     <div className="content-container">
       
-      {/* VÄNSTER: LISTA PÅ ORTER */}
+      {/* LISTA PÅ ORTER */}
       <div className="list-section">
         <h3>Våra Kursorter</h3>
         
@@ -92,6 +122,15 @@ const Locations = () => {
                   <MapPin size={18} color="#ea580c" />
                   <span className="item-name">{loc.name}</span>
                 </div>
+
+                 {/* Edit */}
+              <button 
+                className="btn-edit"
+                onClick={() => setEditingCourse(course)} 
+                 title="Redigera kurs"
+               >
+                  ✎
+               </button>
                 
                 <button 
                   className="btn-delete"
@@ -138,6 +177,51 @@ const Locations = () => {
           </small>
         </div>
       </div>
+
+       {/* Modal update*/}
+{editingCourse && (
+  <div className="modal-overlay">
+    <div className="modal-content">
+      <h3>Redigera kurs: {editingCourse.courseName}</h3>
+      <form onSubmit={handleUpdate}>
+        <div className="form-group">
+          <label>Kursens namn</label>
+          <input 
+            type="text" 
+            value={editingCourse.courseName}
+            onChange={(e) => setEditingCourse({...editingCourse, courseName: e.target.value})}
+            required 
+          />
+        </div>
+        <div className="form-group">
+          <label>Kurskod</label>
+          <input 
+            type="text" 
+            value={editingCourse.courseCode}
+            onChange={(e) => setEditingCourse({...editingCourse, courseCode: e.target.value})}
+            required 
+          />
+        </div>
+        <div className="form-group">
+          <label>Beskrivning</label>
+          <textarea 
+            value={editingCourse.description}
+            onChange={(e) => setEditingCourse({...editingCourse, description: e.target.value})}
+            rows="3"
+            required
+          ></textarea>
+        </div>
+        <div className="modal-buttons">
+          <button type="submit" className="btn-save">Spara ändringar</button>
+          <button type="button" className="btn-cancel" onClick={() => setEditingCourse(null)}>Avbryt</button>
+        </div>
+      </form>
+    </div>
+  </div>
+)}
+
+
+
     </div>
   );
 };

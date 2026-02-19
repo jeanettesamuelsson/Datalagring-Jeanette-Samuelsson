@@ -12,14 +12,14 @@ import Locations from './pages/Locations';
 function App() {
   return (
     <BrowserRouter>
-      {/* Behållaren som styr hela sidans layout via CSS Grid */}
+      {/* layout grid container*/}
       <div className="app-grid-container">
         
         <header className="site-header">
           <Header />
         </header>
         
-        {/* Sidebar fungerar som din navigation-section */}
+        {/* Sidebar /navigation-section */}
         <Sidebar />
 
         <main className="content-section">

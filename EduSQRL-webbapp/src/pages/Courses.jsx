@@ -4,6 +4,7 @@ const Courses = () => {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [editingCourse, setEditingCourse] = useState(null);
 
   const [courseData, setCourseData] = useState({
     courseName: '',
@@ -31,7 +32,38 @@ const Courses = () => {
     }
   };
 
-  // --- NYHET: FUNKTION FÖR ATT RADERA ---
+  // --- update function ---
+  const handleUpdate = async (e) => {
+
+    e.preventDefault();
+   
+    try {
+      const response = await fetch(`${API_URL}/${editingCourse.id}`, {
+      method: 'PUT',
+      headers: { 
+        'Content-Type': 'application/json',
+        'If-Match': editingCourse.rowVersion 
+      },
+      body: JSON.stringify(editingCourse)
+    });
+
+      if (!response.ok) {
+      if (response.status === 412 || response.status === 409) {
+        throw new Error("Kursen har ändrats av någon annan. Ladda om sidan.");
+      }
+      throw new Error("Det gick inte att uppdatera kursen");
+    }
+
+    setEditingCourse(null); // close modal
+    fetchCourses();         // update list
+    alert("Kursen är uppdaterad! 🐿️");
+  } catch (err) {
+    alert(`Hoppsan: ${err.message}`);
+  }
+};
+
+
+  // --- delete function ---
   const handleDelete = async (id, rowVersion) => {
     if (!window.confirm("Är du säker på att du vill ta bort den här kursen ur förrådet?")) {
       return;
@@ -51,7 +83,7 @@ const Courses = () => {
         throw new Error("Gick inte att radera kursen");
       }
 
-      // Uppdatera listan efter lyckad radering
+      // Uupdate list after delete
       fetchCourses();
     } catch (err) {
       alert(`Hoppsan: ${err.message}`);
@@ -82,7 +114,7 @@ const Courses = () => {
   return (
     <div className="content-container">
       
-      {/* VÄNSTER: LISTA PÅ KURSER */}
+      {/* List of courses */}
       <div className="list-section">
         <h3>Befintliga kurser</h3>
 
@@ -108,7 +140,16 @@ const Courses = () => {
                 </p>
               </div>
 
-              {/* TA BORT-KNAPPEN */}
+             {/* Edit */}
+              <button 
+                className="btn-edit"
+                onClick={() => setEditingCourse(course)} 
+                 title="Redigera kurs"
+               >
+                  ✎
+               </button>
+
+              {/*delete btn*/}
               <button 
                 className="btn-delete"
                 onClick={() => handleDelete(course.id, course.rowVersion)}
@@ -121,7 +162,7 @@ const Courses = () => {
         )}
       </div>
 
-      {/* HÖGER: FORMULÄR */}
+      {/* form */}
       <div className="form-container">
         <h3>Lägg till ny kurs</h3>
         <form onSubmit={handleSubmit} className="course-form">
@@ -166,6 +207,51 @@ const Courses = () => {
           </button>
         </form>
       </div>
+
+      {/* Modal update*/}
+{editingCourse && (
+  <div className="modal-overlay">
+    <div className="modal-content">
+      <h3>Redigera kurs: {editingCourse.courseName}</h3>
+      <form onSubmit={handleUpdate}>
+        <div className="form-group">
+          <label>Kursens namn</label>
+          <input 
+            type="text" 
+            value={editingCourse.courseName}
+            onChange={(e) => setEditingCourse({...editingCourse, courseName: e.target.value})}
+            required 
+          />
+        </div>
+        <div className="form-group">
+          <label>Kurskod</label>
+          <input 
+            type="text" 
+            value={editingCourse.courseCode}
+            onChange={(e) => setEditingCourse({...editingCourse, courseCode: e.target.value})}
+            required 
+          />
+        </div>
+        <div className="form-group">
+          <label>Beskrivning</label>
+          <textarea 
+            value={editingCourse.description}
+            onChange={(e) => setEditingCourse({...editingCourse, description: e.target.value})}
+            rows="3"
+            required
+          ></textarea>
+        </div>
+        <div className="modal-buttons">
+          <button type="submit" className="btn-save">Spara ändringar</button>
+          <button type="button" className="btn-cancel" onClick={() => setEditingCourse(null)}>Avbryt</button>
+        </div>
+      </form>
+    </div>
+  </div>
+)}
+
+
+
     </div>
   );
 };
