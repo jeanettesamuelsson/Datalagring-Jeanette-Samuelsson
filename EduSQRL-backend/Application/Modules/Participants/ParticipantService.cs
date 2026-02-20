@@ -1,11 +1,12 @@
 ﻿
 
-using Application.Abstractions.Persistence;
 using Application.Modules.Participants.Inputs;
 using Application.Modules.Participants.Outputs;
 using Domain.Participants.ValueObjects;
 using Application.Modules.Roles;
 using Domain.Models;
+using Domain.RepositoryInterfaces;
+using Domain.Persistence;
 
 
 namespace Application.Modules.Participants;

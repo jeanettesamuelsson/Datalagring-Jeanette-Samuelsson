@@ -1,9 +1,9 @@
 ﻿
-using Application.Abstractions.Persistence;
+
 using Domain.Models;
+using Domain.Persistence;
 
-
-namespace Application.Modules.Participants;
+namespace Domain.RepositoryInterfaces;
 
 public interface IParticipantRepository : IBaseRepository<Participant, Guid>
 {

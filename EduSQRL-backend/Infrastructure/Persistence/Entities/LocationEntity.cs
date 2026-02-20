@@ -1,4 +1,4 @@
-﻿using Application.Abstractions.Persistence;
+﻿using Domain.Persistence;
 
 namespace Infrastructure.Persistence.Entities;
 

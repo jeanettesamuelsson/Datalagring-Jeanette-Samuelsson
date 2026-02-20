@@ -1,5 +1,6 @@
 ﻿
-using Application.Abstractions.Persistence;
+
+using Domain.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 

@@ -1,8 +1,10 @@
-﻿using Application.Abstractions.Persistence;
+﻿
 using Application.Modules.Registrations.Input;
 using Application.Modules.Registrations.Output;
 
 using Domain.Models;
+using Domain.Persistence;
+using Domain.RepositoryInterfaces;
 
 namespace Application.Modules.Registrations;
 

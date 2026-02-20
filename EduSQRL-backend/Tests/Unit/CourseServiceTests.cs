@@ -2,9 +2,9 @@
 using Xunit;
 using Application.Modules.Courses;
 using Application.Modules.Courses.Input;
-using Application.Modules.Courses.Output;
-using Application.Abstractions.Persistence;
 using Domain.Models;
+using Domain.RepositoryInterfaces;
+using Domain.Persistence;
 
 namespace Tests.Unit;
 

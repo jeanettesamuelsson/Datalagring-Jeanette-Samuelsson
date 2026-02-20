@@ -1,4 +1,4 @@
-using Application.Abstractions.Persistence;
+
 using Application.Modules.Courses;
 using Application.Modules.Courses.Input;
 using Application.Modules.CourseSessions;
@@ -21,6 +21,9 @@ using Presentation.Dtos.CourseSession;
 using Presentation.Dtos.Location;
 using Presentation.Dtos.Registration;
 using Presentation.Middleware;
+using Domain.Persistence;
+using Domain.RepositoryInterfaces;
+
 
 
 var builder = WebApplication.CreateBuilder(args);

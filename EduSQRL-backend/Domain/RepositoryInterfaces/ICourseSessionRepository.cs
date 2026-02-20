@@ -1,8 +1,8 @@
-﻿using Application.Abstractions.Persistence;
+﻿
 using Domain.Models;
+using Domain.Persistence;
 
-
-namespace Application.Modules.CourseSessions;
+namespace Domain.RepositoryInterfaces;
 
 public interface ICourseSessionRepository : IBaseRepository<CourseSession, Guid>   
 {

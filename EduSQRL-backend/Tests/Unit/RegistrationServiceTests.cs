@@ -1,7 +1,9 @@
-﻿using Application.Abstractions.Persistence;
+﻿
 using Application.Modules.Registrations;
 using Application.Modules.Registrations.Input;
 using Domain.Models;
+using Domain.Persistence;
+using Domain.RepositoryInterfaces;
 using NSubstitute;
 
 namespace Tests.Unit;

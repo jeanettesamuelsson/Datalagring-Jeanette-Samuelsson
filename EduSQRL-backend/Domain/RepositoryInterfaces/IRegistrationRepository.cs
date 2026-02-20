@@ -1,10 +1,8 @@
-﻿using Application.Abstractions.Persistence;
+﻿
 using Domain.Models;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using Domain.Persistence;
 
-namespace Application.Modules.Registrations;
+namespace Domain.RepositoryInterfaces;
 
 public interface IRegistrationRepository : IBaseRepository<Registration, Guid>
 {

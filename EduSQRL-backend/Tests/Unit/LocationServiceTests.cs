@@ -2,8 +2,10 @@
 using Xunit;
 using Application.Modules.Locations;
 using Application.Modules.Locations.Input;
-using Application.Abstractions.Persistence;
+
 using Domain.Models;
+using Domain.RepositoryInterfaces;
+using Domain.Persistence;
 
 namespace Tests.Unit;
 

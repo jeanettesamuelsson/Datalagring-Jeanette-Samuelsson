@@ -3,9 +3,10 @@ using Xunit;
 using Application.Modules.CourseSessions;
 using Application.Modules.CourseSessions.Input;
 using Application.Modules.Courses;
-using Application.Modules.Locations;
-using Application.Abstractions.Persistence;
+
 using Domain.Models;
+using Domain.RepositoryInterfaces;
+using Domain.Persistence;
 
 namespace Tests.Unit;
 

@@ -1,4 +1,5 @@
-﻿using Application.Abstractions.Persistence;
+﻿
+using Domain.Persistence;
 using Infrastructure.Persistence.Data;
 
 namespace Infrastructure.Persistence.UnitOfWork;

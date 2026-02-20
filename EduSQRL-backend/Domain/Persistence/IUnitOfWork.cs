@@ -1,5 +1,5 @@
 ﻿
-namespace Application.Abstractions.Persistence;
+namespace Domain.Persistence;
 
 public interface IUnitOfWork
 {

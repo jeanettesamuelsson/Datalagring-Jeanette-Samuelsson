@@ -1,8 +1,10 @@
-﻿using Application.Abstractions.Persistence;
+﻿
 using Application.Modules.Participants;
 using Application.Modules.Roles;
 using Domain.Models;
 using Domain.Participants.ValueObjects;
+using Domain.Persistence;
+using Domain.RepositoryInterfaces;
 using NSubstitute;
 
 

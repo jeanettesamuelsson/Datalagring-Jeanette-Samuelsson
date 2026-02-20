@@ -2,6 +2,7 @@
 using Application.Modules.Courses;
 using Application.Modules.CourseSessions;
 using Domain.Models;
+using Domain.RepositoryInterfaces;
 using Infrastructure.Persistence.Data;
 using Infrastructure.Persistence.Entities;
 using Microsoft.EntityFrameworkCore;

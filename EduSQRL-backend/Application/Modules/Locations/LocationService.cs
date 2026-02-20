@@ -1,9 +1,11 @@
 ﻿
-using Application.Abstractions.Persistence;
+
 using Application.Modules.Locations.Input;
 using Application.Modules.Locations.Output;
 
 using Domain.Models;
+using Domain.Persistence;
+using Domain.RepositoryInterfaces;
 
 
 namespace Application.Modules.Locations;

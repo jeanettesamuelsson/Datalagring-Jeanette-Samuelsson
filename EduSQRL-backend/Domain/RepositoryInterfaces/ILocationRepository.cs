@@ -1,9 +1,8 @@
-﻿using Application.Abstractions.Persistence;
+﻿
 using Domain.Models;
+using Domain.Persistence;
 
-
-
-namespace Application.Modules.Locations;
+namespace Domain.RepositoryInterfaces;
 
 public interface ILocationRepository : IBaseRepository<Location, Guid>
 {

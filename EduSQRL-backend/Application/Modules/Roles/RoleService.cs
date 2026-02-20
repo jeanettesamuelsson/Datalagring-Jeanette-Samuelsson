@@ -1,5 +1,6 @@
 ﻿
 using Application.Modules.Roles.Outputs;
+using Domain.RepositoryInterfaces;
 
 
 namespace Application.Modules.Roles;

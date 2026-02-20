@@ -3,6 +3,7 @@ using Application.Modules.Roles;
 using Infrastructure.Persistence.Data;
 using Infrastructure.Persistence.Entities;
 using Domain.Models;
+using Domain.RepositoryInterfaces;
 
 
 namespace Infrastructure.Persistence.Repositories;

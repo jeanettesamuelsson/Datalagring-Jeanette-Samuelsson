@@ -1,9 +1,9 @@
-﻿using Application.Abstractions.Persistence;
-using Application.Modules.Courses;
+﻿
 using Application.Modules.CourseSessions.Input;
 using Application.Modules.CourseSessions.Output;
-using Application.Modules.Locations;
 using Domain.Models;
+using Domain.Persistence;
+using Domain.RepositoryInterfaces;
 
 
 namespace Application.Modules.CourseSessions;

@@ -1,6 +1,7 @@
 ﻿
 using Application.Modules.Registrations;
 using Domain.Models;
+using Domain.RepositoryInterfaces;
 using Infrastructure.Persistence.Data;
 using Infrastructure.Persistence.Entities;
 using Microsoft.EntityFrameworkCore;

@@ -1,5 +1,4 @@
-﻿
-namespace Application.Abstractions.Persistence;
+﻿namespace Domain.Persistence;
 
 public interface IBaseRepository<TModel, in TKey>
 {

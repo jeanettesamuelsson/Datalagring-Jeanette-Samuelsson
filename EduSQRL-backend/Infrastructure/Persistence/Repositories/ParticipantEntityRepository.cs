@@ -6,6 +6,7 @@ using Infrastructure.Persistence.Data;
 using Infrastructure.Persistence.Entities;
 using Microsoft.EntityFrameworkCore;
 using Domain.Models;
+using Domain.RepositoryInterfaces;
 
 namespace Infrastructure.Persistence.Repositories;
 

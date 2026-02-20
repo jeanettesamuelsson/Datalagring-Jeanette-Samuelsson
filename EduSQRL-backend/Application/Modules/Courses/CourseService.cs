@@ -1,7 +1,9 @@
-﻿using Application.Abstractions.Persistence;
+﻿
 using Application.Modules.Courses.Input;
 using Application.Modules.Courses.Output;
 using Domain.Models;
+using Domain.Persistence;
+using Domain.RepositoryInterfaces;
 
 
 
