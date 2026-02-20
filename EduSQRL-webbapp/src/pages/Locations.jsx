@@ -6,6 +6,7 @@ const Locations = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [newName, setNewName] = useState('');
+  const [editingLocation, setEditingLocation] = useState(null);
 
   const API_URL = 'https://localhost:7054/api/locations';
 
@@ -27,35 +28,34 @@ const Locations = () => {
     }
   };
 
-  // --- update function ---
+  // --- Uppdaterad Update-funktion ---
   const handleUpdate = async (e) => {
-
     e.preventDefault();
-   
+    
     try {
       const response = await fetch(`${API_URL}/${editingLocation.id}`, {
-      method: 'PUT',
-      headers: { 
-        'Content-Type': 'application/json',
-        'If-Match': editingLocation.rowVersion 
-      },
-      body: JSON.stringify(editingCourse)
-    });
+        method: 'PUT',
+        headers: { 
+          'Content-Type': 'application/json',
+          'If-Match': editingLocation.rowVersion 
+        },
+        body: JSON.stringify(editingLocation) 
+      });
 
       if (!response.ok) {
-      if (response.status === 412 || response.status === 409) {
-        throw new Error("Platsen har ändrats av någon annan. Ladda om sidan.");
+        if (response.status === 412 || response.status === 409) {
+          throw new Error("Platsen har ändrats av någon annan. Ladda om sidan.");
+        }
+        throw new Error("Det gick inte att uppdatera platsen");
       }
-      throw new Error("Det gick inte att uppdatera platsen");
-    }
 
-    setEditingCourse(null); // close modal
-    fetchCourses();         // update list
-    alert("Platsen är uppdaterad! 🐿️");
-  } catch (err) {
-    alert(`Hoppsan: ${err.message}`);
-  }
-};
+      setEditingLocation(null); 
+      fetchLocations();         
+      alert("Platsen är uppdaterad! 🐿️");
+    } catch (err) {
+      alert(`Hoppsan: ${err.message}`);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -106,7 +106,7 @@ const Locations = () => {
   return (
     <div className="content-container">
       
-      {/* LISTA PÅ ORTER */}
+      {/* list of locations */}
       <div className="list-section">
         <h3>Våra Kursorter</h3>
         
@@ -123,29 +123,31 @@ const Locations = () => {
                   <span className="item-name">{loc.name}</span>
                 </div>
 
-                 {/* Edit */}
-              <button 
-                className="btn-edit"
-                onClick={() => setEditingCourse(course)} 
-                 title="Redigera kurs"
-               >
-                  ✎
-               </button>
-                
-                <button 
-                  className="btn-delete"
-                  onClick={() => handleDelete(loc.id, loc.rowVersion)}
-                  title="Ta bort plats"
-                >
-                  <Trash2 size={16} />
-                </button>
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  {/* Edit */}
+                  <button 
+                    className="btn-edit"
+                    onClick={() => setEditingLocation(loc)} 
+                    title="Redigera plats"
+                  >
+                    ✎
+                  </button>
+                  
+                  <button 
+                    className="btn-delete"
+                    onClick={() => handleDelete(loc.id, loc.rowVersion)}
+                    title="Ta bort plats"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
               </li>
             ))}
           </ul>
         )}
       </div>
 
-      {/* HÖGER: FORMULÄR */}
+      {/* Form */}
       <div className="form-container">
         <h3>Lägg till ny ort</h3>
         <p style={{fontSize: '0.8rem', color: '#666', marginBottom: '15px'}}>
@@ -178,49 +180,29 @@ const Locations = () => {
         </div>
       </div>
 
-       {/* Modal update*/}
-{editingCourse && (
-  <div className="modal-overlay">
-    <div className="modal-content">
-      <h3>Redigera kurs: {editingCourse.courseName}</h3>
-      <form onSubmit={handleUpdate}>
-        <div className="form-group">
-          <label>Kursens namn</label>
-          <input 
-            type="text" 
-            value={editingCourse.courseName}
-            onChange={(e) => setEditingCourse({...editingCourse, courseName: e.target.value})}
-            required 
-          />
+      {/* Modal for updating location */}
+      {editingLocation && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h3>Redigera plats: {editingLocation.name}</h3>
+            <form onSubmit={handleUpdate}>
+              <div className="form-group">
+                <label>Platsens namn</label>
+                <input 
+                  type="text" 
+                  value={editingLocation.name}
+                  onChange={(e) => setEditingLocation({...editingLocation, name: e.target.value})}
+                  required 
+                />
+              </div>
+              <div className="modal-buttons">
+                <button type="submit" className="btn-save">Spara ändringar</button>
+                <button type="button" className="btn-cancel" onClick={() => setEditingLocation(null)}>Avbryt</button>
+              </div>
+            </form>
+          </div>
         </div>
-        <div className="form-group">
-          <label>Kurskod</label>
-          <input 
-            type="text" 
-            value={editingCourse.courseCode}
-            onChange={(e) => setEditingCourse({...editingCourse, courseCode: e.target.value})}
-            required 
-          />
-        </div>
-        <div className="form-group">
-          <label>Beskrivning</label>
-          <textarea 
-            value={editingCourse.description}
-            onChange={(e) => setEditingCourse({...editingCourse, description: e.target.value})}
-            rows="3"
-            required
-          ></textarea>
-        </div>
-        <div className="modal-buttons">
-          <button type="submit" className="btn-save">Spara ändringar</button>
-          <button type="button" className="btn-cancel" onClick={() => setEditingCourse(null)}>Avbryt</button>
-        </div>
-      </form>
-    </div>
-  </div>
-)}
-
-
+      )}
 
     </div>
   );
