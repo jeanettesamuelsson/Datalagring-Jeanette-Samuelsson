@@ -1,8 +1,12 @@
 ﻿using Application.Modules.Courses;
+using Dapper; 
 using Domain.Models;
 using Infrastructure.Persistence.Data;
 using Infrastructure.Persistence.Entities;
+using Microsoft.Data.SqlClient; 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
+using System.Data;
 
 
 namespace Infrastructure.Persistence.Repositories;
@@ -82,6 +86,32 @@ public class CourseRepository(EduSqrlDbContext context) : EfcBaseRepository<Cour
         return entity is null ? null : ToModel(entity);
     }
 
-   
+    public async Task<IReadOnlyList<Course>> GetAllWithDapperAsync(CancellationToken ct = default)
+    {
+        // connection to database from EF Core's DbContext
+
+        var connection = context.Database.GetDbConnection();
+
+        // raw SQL
+
+        const string sql = @"
+        SELECT 
+            Id, 
+            CourseName, 
+            CourseCode, 
+            Description, 
+            Concurrency 
+        FROM Courses";
+
+        // run the query
+        // map directly to CourseEntity 
+
+        var entities = await connection.QueryAsync<CourseEntity>(sql,
+            transaction: context.Database.CurrentTransaction?.GetDbTransaction());
+
+        // then map to model
+        
+        return entities.Select(ToModel).ToList();
+    }
 
 }

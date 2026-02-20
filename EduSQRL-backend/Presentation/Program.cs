@@ -174,7 +174,7 @@ courseGroup.MapPost("/", async (CreateCourseRequest request, ICourseService serv
 
 courseGroup.MapGet("/", async (ICourseService service, CancellationToken ct) =>
 {
-    var courses = await service.GetAllCoursesAsync(ct);
+    var courses = await service.GetAllWithDapperAsync(ct);
     return Results.Ok(courses);
 });
 

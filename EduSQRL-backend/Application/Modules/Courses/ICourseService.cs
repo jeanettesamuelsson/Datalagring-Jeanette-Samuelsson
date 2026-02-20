@@ -13,8 +13,8 @@ public interface ICourseService
     // delete
     Task DeleteAsync(Guid CourseId, byte[] rowVersion, CancellationToken cancellationToken);
 
-    // get all 
-    Task<IReadOnlyList<CourseOutput>> GetAllCoursesAsync(CancellationToken cancellationToken);
+    // get all with dapper
+    Task<IReadOnlyList<CourseOutput>> GetAllWithDapperAsync(CancellationToken cancellationToken);
 
     // get by ID
     Task<CourseOutput?> GetByIdAsync(Guid id, CancellationToken cancellationToken);

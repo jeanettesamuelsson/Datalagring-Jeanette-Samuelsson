@@ -49,9 +49,11 @@ public class CourseService(
     }
 
     // read (all and by id)
-    public async Task<IReadOnlyList<CourseOutput>> GetAllCoursesAsync(CancellationToken ct = default)
+
+    //  read with dapper method
+    public async Task<IReadOnlyList<CourseOutput>> GetAllWithDapperAsync(CancellationToken ct = default)
     {
-        var list = await courses.ListAsync(ct);
+        var list = await courses.GetAllWithDapperAsync(ct);
 
         return [.. list.Select(ToOutputModel)];
     }
