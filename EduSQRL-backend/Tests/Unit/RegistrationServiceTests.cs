@@ -4,7 +4,7 @@ using Application.Modules.Registrations.Input;
 using Domain.Models;
 using NSubstitute;
 
-namespace Tests.Unit.Registrations;
+namespace Tests.Unit;
 
 public class RegistrationServiceTests
 {

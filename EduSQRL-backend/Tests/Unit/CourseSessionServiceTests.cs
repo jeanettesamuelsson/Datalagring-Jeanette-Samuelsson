@@ -66,7 +66,7 @@ public class CourseSessionServiceTests
          input.CourseId,
          "Programmering 1",
          "PRG01",
-         "En bra kurs", 
+         "En kurs", 
          []             
      ));
 

@@ -2,11 +2,9 @@
 using Application.Abstractions.Persistence;
 using Application.Modules.Locations.Input;
 using Application.Modules.Locations.Output;
-using Application.Modules.Participants.Inputs;
-using Application.Modules.Participants.Outputs;
-using Application.Modules.Roles;
+
 using Domain.Models;
-using Domain.Participants.ValueObjects;
+
 
 namespace Application.Modules.Locations;
 
